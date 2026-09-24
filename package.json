@@ -9,7 +9,7 @@
     "css": "tailwindcss -c tailwind.config.cjs -i styles/input.css -o app.css --minify",
     "start": "pnpm run css && electron .",
     "test": "node tests/reorder.cjs && node tests/gauge-color.cjs && node tests/productivity.cjs && node tests/desktop.cjs",
-    "build:mac": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64",
+    "build:mac": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64 --publish never",
     "build:dir": "pnpm run css && electron-builder --dir"
   },
   "devDependencies": {
