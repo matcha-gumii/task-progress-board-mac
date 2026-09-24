@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Task Progress Board — macOS Download</title>
-  <meta name="description" content="親・子・孫タスクを整理できる、光沢感のあるmacOS向けタスク管理アプリ。">
+  <title>Task Progress Board — Download</title>
+  <meta name="description" content="親・子・孫タスクを整理できる、光沢感のあるmacOS・Windows向けタスク管理アプリ。">
   <meta name="theme-color" content="#d8dbe0">
   <style>
     :root {
@@ -41,7 +41,7 @@
     h1 { max-width:680px; margin:0; font-size:clamp(43px,6vw,72px); line-height:.98; letter-spacing:-.057em; }
     .lead { max-width:590px; margin:24px 0 0; color:#555f6b; font-size:17px; line-height:1.85; }
     .downloads { display:flex; flex-wrap:wrap; gap:11px; margin-top:31px; }
-    .download { min-width:190px; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 17px; border-radius:13px; font-weight:760; font-size:14px; border:1px solid rgba(255,255,255,.8); box-shadow:0 11px 25px rgba(38,45,54,.16),inset 0 1px 0 rgba(255,255,255,.55); transition:transform .18s ease,box-shadow .18s ease; }
+    .download { min-width:160px; flex:1 1 160px; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 13px; border-radius:13px; font-weight:760; font-size:14px; border:1px solid rgba(255,255,255,.8); box-shadow:0 11px 25px rgba(38,45,54,.16),inset 0 1px 0 rgba(255,255,255,.55); transition:transform .18s ease,box-shadow .18s ease; }
     .download:hover { transform:translateY(-2px); box-shadow:0 16px 30px rgba(38,45,54,.22),inset 0 1px 0 rgba(255,255,255,.55); }
     .download.primary { color:#fff; background:linear-gradient(180deg,#596270,#303741); }
     .download.secondary { background:rgba(255,255,255,.64); }
@@ -80,7 +80,7 @@
     .feature-icon { width:36px; height:36px; display:grid; place-items:center; margin-bottom:28px; border-radius:10px; color:#fff; background:linear-gradient(145deg,#737d89,#353c46); box-shadow:0 8px 15px rgba(38,45,54,.18); }
     .feature h3 { margin:0 0 9px; font-size:17px; }
     .feature p { margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
-    .guide { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .guide { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
     .guide-card { padding:28px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.5); box-shadow:inset 0 1px 0 #fff; }
     .guide-card strong { display:block; margin-bottom:8px; font-size:18px; }
     .guide-card p { margin:0; color:var(--muted); line-height:1.7; }
@@ -138,7 +138,7 @@
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow" data-ja="macOS用デスクトップアプリ" data-en="Desktop app for macOS">macOS用デスクトップアプリ</div>
+          <div class="eyebrow" data-ja="macOS・Windows用デスクトップアプリ" data-en="Desktop app for macOS and Windows">macOS・Windows用デスクトップアプリ</div>
           <h1 data-ja="タスクを、静かに前へ。" data-en="Move every task forward.">タスクを、静かに前へ。</h1>
           <p class="lead" data-ja="親タスクから孫タスクまで、進捗をひとつの画面で整理。光沢感のある落ち着いたデザインで、毎日の作業に集中できます。" data-en="Organize main tasks, subtasks, and nested tasks in one place. A calm, polished interface keeps your attention on the work ahead.">親タスクから孫タスクまで、進捗をひとつの画面で整理。光沢感のある落ち着いたデザインで、毎日の作業に集中できます。</p>
           <div class="downloads">
@@ -148,8 +148,11 @@
             <a class="download secondary" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-mac-x64.dmg">
               <span class="apple">●</span><span><span data-ja="Intel Mac版" data-en="Intel Mac">Intel Mac版</span><small>Intel processor</small></span>
             </a>
+            <a class="download secondary" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-windows-x64.exe">
+              <span class="apple">⊞</span><span><span data-ja="Windows版" data-en="Windows">Windows版</span><small>Windows 10 / 11 x64</small></span>
+            </a>
           </div>
-          <p class="meta" data-ja="Version 1.0.0 ・ macOS ・ 個人／非商用利用" data-en="Version 1.0.0 · macOS · Personal, non-commercial use">Version 1.0.0 ・ macOS ・ 個人／非商用利用</p>
+          <p class="meta" data-ja="Version 1.0.0 ・ macOS / Windows ・ 個人／非商用利用" data-en="Version 1.0.0 · macOS / Windows · Personal, non-commercial use">Version 1.0.0 ・ macOS / Windows ・ 個人／非商用利用</p>
         </div>
 
         <div class="preview" aria-label="Application preview">
@@ -174,12 +177,14 @@
       </section>
 
       <section class="section" id="download-help">
-        <div class="section-head"><h2 data-ja="どちらを選べばいい？" data-en="Which version should I choose?">どちらを選べばいい？</h2><p data-ja="メニューの「このMacについて」を開き、「チップ」または「プロセッサ」を確認してください。" data-en="Open About This Mac from the Apple menu and check the Chip or Processor field.">メニューの「このMacについて」を開き、「チップ」または「プロセッサ」を確認してください。</p></div>
+        <div class="section-head"><h2 data-ja="どれを選べばいい？" data-en="Which version should I choose?">どれを選べばいい？</h2><p data-ja="Macはメニューの「このMacについて」でチップを確認できます。Windows 10／11の一般的な64bit PCはWindows版を選んでください。" data-en="On a Mac, open About This Mac from the Apple menu and check the Chip field. On a typical 64-bit Windows 10 or 11 PC, choose Windows.">Macはメニューの「このMacについて」でチップを確認できます。Windows 10／11の一般的な64bit PCはWindows版を選んでください。</p></div>
         <div class="guide">
           <div class="guide-card"><strong>Apple Silicon</strong><p data-ja="「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows Apple M1, M2, M3, M4, or a later Apple chip.">「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。</p></div>
           <div class="guide-card"><strong>Intel Mac</strong><p data-ja="「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows an Intel Core processor.">「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。</p></div>
+          <div class="guide-card"><strong>Windows x64</strong><p data-ja="Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。" data-en="Choose this version for a typical 64-bit Intel or AMD PC running Windows 10 or 11.">Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。</p></div>
         </div>
         <div class="notice" data-ja="現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。" data-en="This release is not signed with an Apple Developer ID. If macOS shows a warning on first launch, Control-click the app in Finder and choose Open.">現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。</div>
+        <div class="notice" data-ja="Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。" data-en="The Windows build is also unsigned. If Microsoft Defender SmartScreen shows a warning, verify the publisher and download source before running the installer.">Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。</div>
       </section>
 
       <section class="section" id="license">
@@ -198,7 +203,7 @@
         document.documentElement.lang = selected;
         nodes.forEach(node => { node.textContent = node.dataset[selected]; });
         buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === selected)));
-        document.title = selected === 'en' ? 'Task Progress Board — macOS Download' : 'Task Progress Board — macOS版ダウンロード';
+        document.title = selected === 'en' ? 'Task Progress Board — Download' : 'Task Progress Board — ダウンロード';
         try { localStorage.setItem('tpb-site-language', selected); } catch (_) {}
       }
       buttons.forEach(button => button.addEventListener('click', () => applyLanguage(button.dataset.lang)));
