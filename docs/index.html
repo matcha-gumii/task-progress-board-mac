@@ -50,27 +50,11 @@
     .meta { margin-top:14px; color:#717a86; font-size:12px; }
     .preview { position:relative; min-height:430px; display:grid; place-items:center; }
     .glow { position:absolute; width:74%; aspect-ratio:1; border-radius:50%; background:rgba(255,255,255,.74); filter:blur(42px); }
-    .window { position:relative; width:min(100%,520px); border:1px solid rgba(255,255,255,.92); border-radius:23px; overflow:hidden; background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(195,201,209,.67)); box-shadow:0 34px 65px rgba(42,49,59,.25),inset 0 1px 0 #fff; transform:perspective(1000px) rotateY(-4deg) rotateX(2deg); }
-    .window-bar { height:48px; display:flex; align-items:center; padding:0 17px; border-bottom:1px solid rgba(88,98,111,.14); }
-    .window-name { margin:auto; font-size:11px; font-weight:750; color:#707987; letter-spacing:.08em; }
-    .window-body { display:grid; grid-template-columns:100px 1fr; min-height:322px; }
-    .side { padding:20px 11px; border-right:1px solid rgba(92,102,113,.13); background:rgba(227,230,234,.42); }
-    .side-logo { width:30px; height:30px; margin:0 0 28px 8px; border-radius:9px; background:linear-gradient(145deg,#777f8b,#343a43); box-shadow:inset 0 1px 1px rgba(255,255,255,.45); }
-    .side-row { height:28px; margin:7px 0; border-radius:8px; background:rgba(255,255,255,.7); }
-    .side-row.short { width:72%; background:rgba(121,130,141,.13); }
-    .board { padding:24px; }
-    .board-title { width:42%; height:17px; margin-bottom:24px; border-radius:6px; background:#3b424c; }
-    .progress { height:58px; padding:13px; border:1px solid rgba(255,255,255,.8); border-radius:13px; background:rgba(255,255,255,.45); box-shadow:inset 0 1px 0 #fff; }
-    .progress-label { width:29%; height:7px; border-radius:4px; background:#78818d; }
-    .bar { height:4px; margin-top:12px; overflow:hidden; border-radius:5px; background:#c6cbd1; }
-    .bar::after { content:""; display:block; width:64%; height:100%; background:#626d7a; }
-    .card { margin-top:15px; padding:16px; border:1px solid rgba(255,255,255,.83); border-radius:14px; background:rgba(255,255,255,.56); box-shadow:0 10px 24px rgba(53,61,71,.09),inset 0 1px 0 #fff; }
-    .card-top { display:flex; gap:7px; }
-    .pill { width:53px; height:14px; border-radius:8px; background:#d9dde1; }
-    .pill.warm { width:40px; background:#e4d8d8; }
-    .card-title { width:57%; height:10px; margin:15px 0 18px; border-radius:4px; background:#4d5661; }
-    .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }
-    .card-line { height:7px; border-radius:5px; background:#aeb5bd; }
+    .app-shot { position:relative; width:min(100%,580px); overflow:hidden; border:1px solid rgba(255,255,255,.95); border-radius:22px; background:#eef0f3; box-shadow:0 34px 65px rgba(42,49,59,.28),inset 0 1px 0 #fff; transform:perspective(1100px) rotateY(-4deg) rotateX(2deg); transition:transform .2s ease,box-shadow .2s ease; }
+    .app-shot:hover { transform:perspective(1100px) rotateY(-1deg) translateY(-3px); box-shadow:0 40px 72px rgba(42,49,59,.32),inset 0 1px 0 #fff; }
+    .app-shot img { display:block; width:100%; height:auto; }
+    .app-shot::after { content:"Actual app"; position:absolute; right:13px; bottom:13px; padding:6px 9px; border:1px solid rgba(255,255,255,.75); border-radius:8px; background:rgba(39,45,53,.76); color:#fff; font-size:10px; font-weight:800; letter-spacing:.04em; backdrop-filter:blur(8px); }
+    html[lang="ja"] .app-shot::after { content:"実際のアプリ画面"; }
     .section { padding:68px 56px; border-top:1px solid rgba(103,113,124,.16); }
     .section-head { display:flex; justify-content:space-between; gap:30px; align-items:end; margin-bottom:28px; }
     h2 { margin:0; font-size:clamp(30px,4vw,46px); letter-spacing:-.045em; }
@@ -109,10 +93,7 @@
       h1 { font-size:43px; }
       .download { width:100%; }
       .preview { min-height:290px; }
-      .window { transform:none; }
-      .window-body { grid-template-columns:72px 1fr; min-height:260px; }
-      .board { padding:16px; }
-      .side { padding:14px 8px; }
+      .app-shot,.app-shot:hover { transform:none; }
       .section { padding:46px 20px; }
       .guide { grid-template-columns:1fr; }
       .license { align-items:flex-start; flex-direction:column; }
@@ -159,13 +140,9 @@
 
         <div class="preview" aria-label="Application preview">
           <div class="glow"></div>
-          <div class="window" aria-hidden="true">
-            <div class="window-bar"><span class="window-name">TASK PROGRESS BOARD</span></div>
-            <div class="window-body">
-              <aside class="side"><div class="side-logo"></div><div class="side-row"></div><div class="side-row short"></div></aside>
-              <div class="board"><div class="board-title"></div><div class="progress"><div class="progress-label"></div><div class="bar"></div></div><div class="card"><div class="card-top"><span class="pill"></span><span class="pill warm"></span></div><div class="card-title"></div><div class="card-grid"><span class="card-line"></span><span class="card-line"></span><span class="card-line"></span></div></div><div class="card"><div class="card-top"><span class="pill"></span></div><div class="card-title"></div><div class="card-grid"><span class="card-line"></span><span class="card-line"></span><span class="card-line"></span></div></div></div>
-            </div>
-          </div>
+          <a class="app-shot" href="assets/task-progress-board-app.png" target="_blank" rel="noopener" aria-label="アプリ画面を拡大表示">
+            <img src="assets/task-progress-board-app.png" width="1280" height="840" alt="Task Progress Boardの実際のタスク管理画面" fetchpriority="high">
+          </a>
         </div>
       </section>
 
