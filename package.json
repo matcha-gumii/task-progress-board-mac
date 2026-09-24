@@ -1,6 +1,6 @@
 {
   "name": "task-progress-board",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "macOS desktop task progress board",
   "license": "SEE LICENSE IN LICENSE",
   "main": "desktop/main.cjs",
@@ -20,6 +20,7 @@
   "build": {
     "appId": "jp.hideyuki.taskprogressboard",
     "productName": "Task Progress Board",
+    "afterPack": "desktop/after-pack.cjs",
     "asar": true,
     "directories": {
       "output": "dist",

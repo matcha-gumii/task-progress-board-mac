@@ -19,13 +19,20 @@ for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) {
 
 const main = fs.readFileSync(path.join(root, 'desktop/main.cjs'), 'utf8');
 const preload = fs.readFileSync(path.join(root, 'desktop/preload.cjs'), 'utf8');
+const afterPack = fs.readFileSync(path.join(root, 'desktop/after-pack.cjs'), 'utf8');
+const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 new vm.Script(main);
 new vm.Script(preload);
+new vm.Script(afterPack);
 assert.match(main, /contextIsolation: true/);
 assert.match(main, /nodeIntegration: false/);
 assert.match(main, /sandbox: true/);
 assert.match(main, /writeFile\(temporaryPath/);
 assert.match(main, /rename\(temporaryPath/);
 assert.match(main, /app:\/\/task-progress-board/);
+assert.equal(packageJson.build.afterPack, 'desktop/after-pack.cjs');
+assert.match(afterPack, /electronPlatformName !== 'darwin'/);
+assert.match(afterPack, /codesign/);
+assert.match(afterPack, /xattr/);
 
-console.log('PASS: offline assets, renderer syntax, native bridge coverage, secure window settings, atomic sync write and stable app origin.');
+console.log('PASS: offline assets, renderer syntax, native bridge coverage, secure window settings, atomic sync write, stable app origin and valid macOS ad-hoc signing hook.');
