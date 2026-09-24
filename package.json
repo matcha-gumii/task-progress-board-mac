@@ -2,6 +2,7 @@
   "name": "task-progress-board",
   "version": "1.0.0",
   "description": "macOS desktop task progress board",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "desktop/main.cjs",
   "private": true,
   "scripts": {
