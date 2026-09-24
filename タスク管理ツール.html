@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+  <title>タスク＆サブタスク進捗管理ボード</title>
+  <link rel="stylesheet" href="app.css" />
+  <style>
+    :root { color-scheme: light; --ink:#303238; --line:rgba(60,65,74,.13); --surface:linear-gradient(145deg,rgba(255,255,255,.85),rgba(255,255,255,.44) 42%,rgba(231,234,238,.57)); --glass-shadow:inset 0 1px 0 #fff,inset 1px 0 0 #ffffffa6,inset 0 -1px 0 #ffffff65,0 10px 28px #343b4814,0 1px 3px #343b4812; }
+    html { scroll-behavior:smooth; }
+    body.mac-theme { font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif; background:radial-gradient(ellipse at 18% 5%,#fff 0%,transparent 43%),radial-gradient(ellipse at 90% 90%,#e6e8eb,transparent 55%),linear-gradient(135deg,#b9bec6,#e4e6e9 47%,#a6adb8); color:var(--ink); min-height:100vh; padding:28px; }
+    .mac-theme #app { position:relative; max-width:1440px; margin:auto; min-height:calc(100vh - 56px); padding-left:196px; border:1px solid rgba(255,255,255,.85); border-radius:22px; background:radial-gradient(ellipse at 24% 0%,#ffffffed,transparent 56%),radial-gradient(ellipse at 96% 76%,#9fa7b54d,transparent 60%),linear-gradient(125deg,#e8ebefd9,#c4cad3b3); box-shadow:inset 0 2px 1px #fff,inset 0 -1px 1px #ffffffa6,0 28px 80px #25283030,0 2px 6px #2528301a; overflow:hidden; }
+    .mac-sidebar { position:absolute; left:0; top:0; bottom:0; width:196px; padding:25px 18px; background:linear-gradient(115deg,#ffffffa6,#d2d7df70 48%,#b8c0cd66); box-shadow:inset 1px 0 0 #fff,inset -1px 0 0 #ffffff80; border-right:1px solid var(--line); backdrop-filter:blur(24px); }
+    .sidebar-brand { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:650; margin:2px 8px 46px; }
+    .brand-icon { display:grid; place-items:center; width:32px; height:32px; border-radius:10px; background:linear-gradient(#fff,#e9eaec); border:1px solid #fff; box-shadow:0 3px 7px #0000000b; }
+    .sidebar-label { color:#777c85; font-size:10px; letter-spacing:.12em; margin:0 12px 10px; }
+    .mac-sidebar nav :is(a,button) { display:flex; width:100%; align-items:center; gap:10px; padding:11px 12px; margin:5px 0; border:0; border-radius:9px; color:#60646c; font-size:.75rem; text-align:left; text-decoration:none; background:transparent; box-shadow:none; }
+    .mac-sidebar nav a { background:linear-gradient(#ffffffe6,#ffffff66); color:#292c32; box-shadow:inset 0 1px 0 #fff,0 3px 9px #30384412; font-weight:600; }
+    .mac-sidebar nav :is(a,button):hover { background:#ffffffc9; }
+    .mac-theme #header { background:none; color:var(--ink); box-shadow:none; }
+    .mac-theme #header > div { padding:48px 36px 24px; }
+    .mac-theme #header > div > div { align-items:center; }
+    .mac-theme #header p { color:#858992; font-size:10px; font-weight:500; letter-spacing:.18em; }
+    .mac-theme #projectTitle { font-size:clamp(24px,3vw,32px); font-weight:650; }
+    .mac-theme #header .max-w-xl { max-width:270px; background:var(--surface); border:1px solid #fff; box-shadow:var(--glass-shadow); backdrop-filter:blur(18px); padding:17px 20px; border-radius:14px; }
+    .mac-theme #headerProgressText { color:#41454c; font-size:23px; font-weight:500; }
+    .mac-theme #header .text-blue-50 { color:#747983; font-size:11px; font-weight:500; }
+    .mac-theme #headerProgress { height:5px; background:#c6ccd4; box-shadow:inset 0 1px 2px #30384430,0 1px 0 #ffffffd9; }
+    .mac-theme .progress-fill { transition:width 320ms ease; background:linear-gradient(180deg,#bbc2cc 0%,#929ba8 45%,#697381 52%,#909ba9 100%); box-shadow:inset 0 1px 0 #ffffffa6,0 0 7px #626d7d30; }
+    .mac-theme main { padding:0 36px 36px; }
+    .mac-theme #controls { background:none; border:0; box-shadow:none; padding:8px 0 22px; margin-bottom:0; }
+    .mac-theme #controls label { font-size:12px; font-weight:500; }
+    .mac-theme button,.mac-theme select { font-weight:500; font-size:.75rem; transition:background .15s,box-shadow .15s; }
+    .mac-theme button { touch-action:manipulation; }
+    .mac-theme .bg-main,.mac-theme .bg-in_progress,.mac-theme #saveButton { background:linear-gradient(180deg,#838b97,#646c78 49%,#535c69 51%,#697381); color:#fff; box-shadow:inset 0 1px 0 #ffffff75,inset 0 0 0 1px #39424f38,0 3px 6px #30384422; text-shadow:0 1px 1px #00000035; }
+    .mac-theme .bg-main:hover,.mac-theme .bg-in_progress:hover,.mac-theme #saveButton:hover { background:linear-gradient(180deg,#737d8b,#485360); }
+    .mac-theme .text-main { color:#525963; }
+    .mac-theme .text-overdue { color:#86585c; }
+    .mac-theme .bg-rose-100,.mac-theme .bg-rose-50 { background:#f3ebeb; }
+    .mac-theme .border-rose-200 { border-color:#e3d5d5; }
+    .mac-theme .text-amber-700,.mac-theme .text-emerald-700 { color:#555e60; }
+    .mac-theme .bg-amber-100,.mac-theme .bg-emerald-100 { background:#e9ecec; border-color:#d8dddd; }
+    .mac-theme #taskList > article { background:var(--surface); border:1px solid #ffffffeb; border-radius:16px; box-shadow:var(--glass-shadow); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); --tw-ring-shadow:0 0 #0000; }
+    .mac-theme #taskList > article:hover { box-shadow:inset 0 1px 0 #fff,inset 1px 0 0 #ffffffa6,0 14px 32px #343b4820,0 1px 3px #343b4814; }
+    .mac-theme #taskList > article > .p-5 { padding:24px; }
+    .mac-theme [data-field="title"] { font-size:18px; font-weight:600; letter-spacing:-.025em; }
+    .mac-theme #taskList .text-slate-400 { color:#7b818a; }
+    .mac-theme #taskList .font-extrabold { font-weight:600; }
+    .mac-theme #taskList .h-3 { height:5px; box-shadow:inset 0 1px 2px #30384425,0 1px 0 #fff; background:#cbd0d8; }
+    .mac-theme #taskList .bg-slate-50 { background:linear-gradient(120deg,#ffffff65,#e8ebef70); }
+    .mac-theme #taskForm { background:#f0f1f3; border-color:var(--line); }
+    .mac-theme #settingsModal > div,.mac-theme #modal > div { border-radius:18px; background:linear-gradient(135deg,#ffffffed,#e9edf3ed); box-shadow:var(--glass-shadow),0 28px 90px #20263038; backdrop-filter:blur(24px); }
+    .mac-theme input { accent-color:#626873; }
+    .mac-theme .focus-ring:focus-visible { outline:3px solid #8a939e80; outline-offset:3px; }
+    .mac-theme [data-field="title"],.mac-theme #projectTitle { overflow-wrap:anywhere; }
+
+    /* Shared glass surfaces for settings, details and both nested task levels. */
+    .mac-theme :is(#settingsModal,#modal) { background:rgba(39,44,53,.38); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+    .mac-theme :is(#settingsModal,#modal) > div { border:1px solid #ffffffe0; }
+    .mac-theme :is(#settingsModal,#modal) .sticky { background:linear-gradient(120deg,#fffffff2,#e0e5edef); border-color:#ffffffd9; box-shadow:inset 0 1px 0 #fff,0 3px 14px #3038440a; backdrop-filter:blur(20px); }
+    .mac-theme :is(#settingsModal,#modal) :is(h2,h3) { font-weight:600; letter-spacing:-.02em; }
+    .mac-theme :is(#settingsModal,#modal) .text-slate-400 { color:#707781; }
+    .mac-theme :is(.settings-panel,.task-summary,.subtask-panel,.grandchild-panel) { background:var(--surface); border-color:#ffffffe6; border-radius:14px; box-shadow:var(--glass-shadow); }
+    .mac-theme .grandchild-panel { background:linear-gradient(135deg,#ffffffb8,#dfe4eb91); border-radius:10px; box-shadow:inset 0 1px 0 #fff,0 3px 10px #343b480a; }
+    .mac-theme :is(#taskList,#modalContent) .border-l-2 { border-color:#aeb7c4; }
+    .mac-theme :is(#taskForm,#subtaskForm,.grandchild-form) { background:linear-gradient(130deg,#e1e6edb3,#ffffffa6); border:1px solid #ffffffd9; box-shadow:inset 0 1px 0 #fff, inset 0 1px 6px #343b480c; border-radius:12px; }
+    .mac-theme :is(#settingsModal,#modal,#taskForm) :is(input:not([type="checkbox"]):not([type="file"]),select) { min-width:0; max-width:100%; color:#363d47; background:linear-gradient(#fffffff2,#f4f6f9e6); border:1px solid #bfc6d1; box-shadow:inset 0 1px 3px #343b480d,0 1px 0 #fff; border-radius:8px; }
+    .mac-theme input[type="checkbox"] { flex-shrink:0; accent-color:#66717f; }
+    .mac-theme :is(#settingsModal,#modal,#taskList) button:not(.bg-main):not(.bg-in_progress):not([data-action="edit-field"]):not([data-action="toggle-accordion"]) { background:linear-gradient(#ffffffdb,#e1e6edb3); border:1px solid #bec6d180; color:#495361; box-shadow:inset 0 1px 0 #fff,0 2px 4px #343b480d; }
+    .mac-theme :is(#settingsModal,#modal,#taskList) button:not(.bg-main):not(.bg-in_progress):not([data-action="edit-field"]):not([data-action="toggle-accordion"]):hover { background:linear-gradient(#fff,#cfd7e2b3); }
+    .mac-theme :is(#settingsModal,#modal,#taskList) button[data-action^="delete-"],.mac-theme #clearSyncFileButton { color:#86585c; }
+    .mac-theme :is(#settingsModal,#modal) :is(.bg-blue-50,.bg-amber-50,.bg-slate-50) { background:linear-gradient(130deg,#ffffffb8,#e0e5ec9c); border-color:#c5cdd7; }
+    .mac-theme :is(#settingsModal,#modal) :is(.text-blue-800,.text-amber-800,.text-amber-900,.text-amber-700,.text-emerald-700) { color:#505b69; }
+    .mac-theme :is(#settingsModal,#modal) :is(p,label,.task-summary,.subtask-panel,.grandchild-panel) { overflow-wrap:anywhere; }
+    .mac-theme #settingsModal label { flex-shrink:0; }
+    .mac-theme :is(#settingsModal,#modal) button:disabled { opacity:.5; box-shadow:none; cursor:not-allowed; }
+    @media(max-width:767px) { .mac-theme :is(#settingsModal,#modal) { padding:10px; } .mac-theme :is(#settingsModal,#modal) > div { max-height:calc(100dvh - 20px); } .mac-theme :is(#settingsModal,#modal) .p-5 { padding:16px; } .mac-theme :is(#modalContent,#taskList) .border-l-2 { margin-left:8px; padding-left:10px; } }
+
+    .mac-theme .reorder-item { position:relative; padding-top:38px; }
+    .mac-theme .reorder-handle { position:absolute; top:7px; right:12px; min-width:30px; height:26px; padding:0 7px; cursor:grab; touch-action:none; user-select:none; font-size:18px; line-height:1; z-index:1; }
+    .mac-theme .reorder-handle:active { cursor:grabbing; }
+    .mac-theme .reorder-handle:disabled { cursor:not-allowed; opacity:.35; }
+    .mac-theme .reorder-dragging { opacity:.22; }
+    .mac-theme .drag-preview,.mac-theme .drag-preview * { pointer-events:none!important; }
+    .mac-theme .drop-before { outline:2px solid #637489; outline-offset:2px; border-top:4px solid #637489!important; }
+    .mac-theme .drop-after { outline:2px solid #637489; outline-offset:2px; border-bottom:4px solid #637489!important; }
+    @media(max-width:1100px) { .mac-theme #app { padding-left:168px; } .mac-sidebar { width:168px; padding-inline:12px; } .mac-theme #header > div { padding:30px 24px 20px; } .mac-theme main { padding:0 24px 24px; } }
+    @media(max-width:767px) { body.mac-theme { padding:10px; } .mac-theme #app { padding-left:0; border-radius:16px; min-height:calc(100vh - 20px); } .mac-sidebar { position:relative; width:auto; padding:16px 20px; border-right:0; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; } .sidebar-brand { margin:0; font-size:12px; } .brand-icon,.sidebar-label,.mac-sidebar nav { display:none; } .mac-theme #header > div { padding:26px 18px 18px; } .mac-theme #header > div > div { align-items:stretch; gap:18px; } .mac-theme #header .max-w-xl { max-width:none; } .mac-theme main { padding:0 14px 20px; } .mac-theme #taskList > article > .p-5 { padding:18px; } .mac-theme #controls button { padding:10px 12px; } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .mac-theme .progress-fill,.mac-theme button { transition:none; } }
+
+    .theme-choices { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:14px; }
+    .theme-choice { display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 6px; border-radius:10px; }
+    .theme-swatch { width:36px; height:24px; border-radius:7px; border:1px solid #ffffff80; box-shadow:inset 0 1px 0 #ffffffa6,0 3px 5px #0002; }
+    .mac-theme .theme-choice[aria-pressed="true"] { outline:2px solid currentColor; outline-offset:2px; }
+    .mac-theme[data-theme="wine"] { --base:#260e1b; --mid:#56243d; --light:#925b76; --panel:#68324d; --text:#fff2f8; --muted:#dac0cd; --edge:#c592aa66; --accent:#d7a4bd; }
+    .mac-theme[data-theme="blue"] { --base:#0b1b32; --mid:#1c3e67; --light:#527eab; --panel:#284f79; --text:#f0f7ff; --muted:#bed0e5; --edge:#8db7df66; --accent:#a1c8ed; }
+    .mac-theme[data-theme="black"] { --base:#101113; --mid:#282b30; --light:#606670; --panel:#353940; --text:#f3f4f6; --muted:#c1c6ce; --edge:#929aa566; --accent:#c8cfd9; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) { color-scheme:dark; color:var(--text); --ink:var(--text); --line:var(--edge); --surface:linear-gradient(135deg,color-mix(in srgb,var(--panel),white 16%),var(--panel) 55%,color-mix(in srgb,var(--panel),black 8%)); --glass-shadow:inset 0 1px 0 #ffffff40,inset 1px 0 0 #ffffff20,0 10px 28px #00000024; background:radial-gradient(ellipse at 15% 0%,var(--light),transparent 65%),var(--base); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) #app { background:radial-gradient(ellipse at 20% 0%,var(--light),transparent 65%),linear-gradient(135deg,var(--mid),var(--base)); border-color:var(--edge); box-shadow:inset 0 1px 1px #ffffff70,0 28px 80px #0005; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) .mac-sidebar { background:linear-gradient(130deg,#ffffff15,#00000018); border-color:var(--edge); box-shadow:inset 1px 0 0 #ffffff30; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(.sidebar-label,.mac-sidebar nav a,.mac-sidebar nav button,#header p,#header .text-blue-50,[class*="text-slate-"],[class*="text-blue-"],[class*="text-amber-"],[class*="text-emerald-"],.text-main) { color:var(--muted); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#projectTitle,#headerProgressText,h2,h3,[data-field="title"],.sidebar-brand) { color:var(--text); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(.brand-icon,.mac-sidebar nav a:first-child) { background:var(--surface); color:var(--text); border-color:var(--edge); box-shadow:var(--glass-shadow); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#taskList > article,#header .max-w-xl,.settings-panel,.task-summary,.subtask-panel,.grandchild-panel,#taskForm,#subtaskForm,.grandchild-form,#settingsModal > div,#modal > div) { background:var(--surface); border-color:var(--edge); box-shadow:var(--glass-shadow); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#settingsModal,#modal) .sticky { background:linear-gradient(135deg,var(--panel),var(--mid)); border-color:var(--edge); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(.bg-slate-50,.bg-blue-50,.bg-amber-50,.bg-rose-50,.bg-rose-100,.bg-amber-100,.bg-emerald-100) { background:linear-gradient(135deg,#ffffff12,#00000012); border-color:var(--edge); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#settingsModal,#modal,#taskList,#controls) button:not([data-action="edit-field"]):not([data-action="toggle-accordion"]),.mac-theme[data-theme]:not([data-theme="gray"]) :is(button.bg-main,button.bg-in_progress) { background:linear-gradient(180deg,color-mix(in srgb,var(--panel),white 22%),var(--panel)); color:var(--text); border-color:var(--edge); box-shadow:inset 0 1px 0 #ffffff50,0 2px 5px #0002; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) button:hover { filter:brightness(1.13); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is([data-action="edit-field"],[data-action="toggle-accordion"]):hover { background:#ffffff14; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#settingsModal,#modal,#taskForm,#app) :is(input:not([type="checkbox"]):not([type="file"]),select) { color:var(--text); background:var(--mid); border-color:var(--edge); box-shadow:inset 0 1px 3px #0002; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) input::placeholder { color:var(--muted); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) input[type="checkbox"] { accent-color:var(--accent); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) .progress-fill { background:linear-gradient(180deg,#ffffffdf,var(--accent) 48%,var(--light) 52%,var(--accent)); }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(#headerProgress,#taskList .h-3) { background:#0003; box-shadow:inset 0 1px 2px #0004; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(.text-overdue,button[data-action^="delete-"],#clearSyncFileButton) { color:#ffd0d7!important; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) :is(.border-l-2,.border-slate-200) { border-color:var(--edge); }
+
+    .mac-theme[data-gauge="blue"] { --gauge-top:#b2e5ff; --gauge-light:#64b8ef; --gauge-dark:#216cac; }
+    .mac-theme[data-gauge="green"] { --gauge-top:#c1f5d8; --gauge-light:#64cf9d; --gauge-dark:#247d59; }
+    .mac-theme[data-gauge="gold"] { --gauge-top:#fff0bb; --gauge-light:#e7c15f; --gauge-dark:#94701b; }
+    /* Match theme specificity so a custom gauge color wins in every theme. */
+    .mac-theme[data-gauge]:not([data-gauge="theme"]) .progress-fill { background:linear-gradient(180deg,var(--gauge-top),var(--gauge-light) 45%,var(--gauge-dark) 52%,var(--gauge-light)); box-shadow:inset 0 1px 0 #ffffffa6,0 0 7px #00000020; }
+
+    .utility-panel { margin:0 0 20px; padding:16px; border-radius:14px; background:var(--surface); box-shadow:var(--glass-shadow); }
+    .utility-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:10px; font-size:.75rem; }
+    .utility-row button,.utility-row select,.utility-row input[type="search"] { padding:8px 10px; border-radius:8px; border:1px solid var(--line); }
+    .utility-row label { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+    .utility-row button { background:#ffffff30; }
+    .utility-row button:disabled { opacity:.4; cursor:not-allowed; }
+    .save-status { font-size:.6875rem; }
+    .task-note { display:block; flex-basis:100%; min-width:0; margin-top:12px; font-size:.75rem; }
+    .grandchild-panel:has(> .task-note) { flex-wrap:wrap; }
+    .task-note textarea { display:block; width:100%; min-height:66px; margin-top:6px; padding:10px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:#ffffff50; resize:vertical; }
+    .mac-theme[data-theme]:not([data-theme="gray"]) .task-note textarea { background:var(--mid); color:var(--text); }
+    @media(max-width:767px) { .utility-row input[type="search"] { width:100%; min-width:0; } }
+    html[data-font-size="small"] { font-size:14px; }
+    html[data-font-size="standard"] { font-size:16px; }
+    html[data-font-size="large"] { font-size:18px; }
+    .setting-choice-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .setting-choice-row button { min-width:78px; padding:9px 12px; border-radius:9px; }
+    .setting-choice-row button[aria-pressed="true"] { outline:2px solid currentColor; outline-offset:2px; }
+  </style>
+</head>
+<body class="mac-theme min-h-screen bg-white text-slate-800">
+  <div id="app" class="min-h-screen">
+    <aside class="mac-sidebar" aria-label="ナビゲーション">
+      <div class="sidebar-brand"><span class="brand-icon" aria-hidden="true">▦</span>Task Board</div>
+      <p class="sidebar-label">ワークスペース</p>
+      <nav><a href="#taskList"><span aria-hidden="true">▦</span><span>タスク一覧</span></a><button id="sidebarSettingsButton" type="button"><span aria-hidden="true">⚙</span><span>設定</span></button></nav>
+    </aside>
+    <header id="header" class="bg-gradient-to-r from-blue-700 via-main to-blue-500 text-white shadow-lg">
+      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p class="mb-2 text-sm font-semibold uppercase tracking-[0.24em] text-blue-100">Task Progress Board</p>
+            <button id="projectTitle" type="button" class="focus-ring rounded-lg text-left text-3xl font-extrabold tracking-tight sm:text-4xl" aria-label="プロジェクト名を編集"></button>
+          </div>
+          <div class="w-full max-w-xl rounded-xl border border-white/20 bg-white/10 p-4 shadow-inner backdrop-blur-sm">
+            <div class="mb-2 flex items-center justify-between gap-4">
+              <span class="text-sm font-semibold text-blue-50">全体進捗</span>
+              <span id="headerProgressText" class="text-2xl font-extrabold">0%</span>
+            </div>
+            <div id="headerProgress" class="h-4 overflow-hidden rounded-full bg-blue-950/30 shadow-inner" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="headerProgressFill" class="progress-fill h-full rounded-full bg-gradient-to-r from-emerald-300 via-emerald-400 to-emerald-500 shadow-[0_0_18px_rgba(52,211,153,0.65)]" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section id="controls" class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label for="sortSelect" class="text-sm font-semibold text-slate-600">並び替え</label>
+            <select id="sortSelect" class="focus-ring rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
+              <option value="createdOrder">手動順</option>
+              <option value="startDate">開始日順</option>
+              <option value="dueDate">期限順</option>
+            </select>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="saveButton" type="button" class="focus-ring rounded-lg bg-slate-800 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-slate-700">保存</button>
+            <button id="settingsButton" type="button" class="focus-ring rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50">⚙ 設定</button>
+            <button id="toggleTaskFormButton" type="button" class="focus-ring rounded-lg bg-main px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700">＋ メインタスク追加</button>
+          </div>
+        </div>
+        <div id="saveNotice" class="mt-3 hidden rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700" role="status" aria-live="polite">保存しました。</div>
+        <form id="taskForm" class="mt-4 hidden rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div>
+              <label for="newTaskTitle" class="mb-1 block text-sm font-semibold text-slate-700">タイトル</label>
+              <input id="newTaskTitle" name="title" type="text" required class="focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2" />
+            </div>
+            <div>
+              <label for="newTaskAssignee" class="mb-1 block text-sm font-semibold text-slate-700">担当者</label>
+              <input id="newTaskAssignee" name="assignee" type="text" class="focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2" />
+            </div>
+            <div>
+              <label for="newTaskStartDate" class="mb-1 block text-sm font-semibold text-slate-700">開始日</label>
+              <input id="newTaskStartDate" name="startDate" type="date" class="focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2" />
+            </div>
+            <div>
+              <label for="newTaskDueDate" class="mb-1 block text-sm font-semibold text-slate-700">期限</label>
+              <input id="newTaskDueDate" name="dueDate" type="date" class="focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2" />
+            </div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button type="submit" class="focus-ring rounded-lg bg-main px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">追加する</button>
+            <button id="cancelTaskFormButton" type="button" class="focus-ring rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">キャンセル</button>
+          </div>
+        </form>
+      </section>
+
+      <div class="utility-panel">
+        <div class="utility-row">
+          <button id="undoButton" type="button" class="focus-ring">↶ 元に戻す</button>
+          <button id="redoButton" type="button" class="focus-ring">↷ やり直す</button>
+          <span class="save-status" role="status"><span id="localSaveStatus">保存確認中</span> ／ バックアップ: <span id="fileSaveStatus">同期未設定</span></span>
+        </div>
+        <div class="utility-row">
+          <label>検索 <input id="taskSearch" type="search" placeholder="タスク名・担当者・メモ" class="focus-ring"></label>
+          <label>状態 <select id="taskFilter" class="focus-ring"><option value="all">すべて</option><option value="unfinished">未完了</option><option value="overdue">期限超過</option><option value="completed">完了</option></select></label>
+          <label><input id="collapseCompleted" type="checkbox"> 完了タスクを折りたたむ</label>
+        </div>
+        <p id="filterSummary" class="text-sm text-slate-500" role="status"></p>
+      </div>
+      <section id="taskList" class="space-y-5" aria-label="メインタスク一覧"></section>
+    </main>
+
+
+    <div id="settingsModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-2xl">
+        <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+          <div>
+            <h2 id="settingsTitle" class="text-xl font-extrabold text-slate-900">設定</h2>
+            <p class="mt-1 text-sm text-slate-500">表示とデータ保存を設定できます。</p>
+          </div>
+          <button id="closeSettingsButton" type="button" class="focus-ring rounded-lg px-3 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100">閉じる</button>
+        </div>
+
+        <div class="space-y-6 p-5">
+          <section class="settings-panel rounded-xl border border-slate-200 p-4" aria-labelledby="languageTitle">
+            <h3 id="languageTitle" class="font-extrabold text-slate-900">表示言語</h3>
+            <p class="mt-1 text-sm text-slate-500">画面のメニューや操作表示を切り替えます。入力したタスク内容は変更しません。</p>
+            <div class="setting-choice-row" role="group" aria-label="表示言語">
+              <button type="button" class="focus-ring" data-language-choice="ja" aria-pressed="false">日本語</button>
+              <button type="button" class="focus-ring" data-language-choice="en" aria-pressed="false">English</button>
+            </div>
+          </section>
+
+          <section class="settings-panel rounded-xl border border-slate-200 p-4" aria-labelledby="fontSizeTitle">
+            <h3 id="fontSizeTitle" class="font-extrabold text-slate-900">文字サイズ</h3>
+            <p class="mt-1 text-sm text-slate-500">画面全体の文字を読みやすい大きさに変更します。</p>
+            <div class="setting-choice-row" role="group" aria-label="文字サイズ">
+              <button type="button" class="focus-ring" data-font-size-choice="small" aria-pressed="false">小</button>
+              <button type="button" class="focus-ring" data-font-size-choice="standard" aria-pressed="false">標準</button>
+              <button type="button" class="focus-ring" data-font-size-choice="large" aria-pressed="false">大</button>
+            </div>
+          </section>
+
+          <section class="settings-panel rounded-xl border border-slate-200 p-4" aria-labelledby="gaugeTitle">
+            <h3 id="gaugeTitle" class="font-extrabold text-slate-900">進捗ゲージの色</h3>
+            <p class="mt-1 text-sm text-slate-500">全体進捗とメインタスクに共通で反映します。</p>
+            <label for="gaugeColorSelect" class="mt-3 mb-1 block text-sm text-slate-700">カラー</label>
+            <select id="gaugeColorSelect" class="focus-ring rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              <option value="theme">テーマに合わせる</option>
+              <option value="blue">ブルー</option>
+              <option value="green">グリーン</option>
+              <option value="gold">ゴールド</option>
+            </select>
+            <p id="gaugeColorNotice" class="mt-2 text-sm text-slate-500" role="status" aria-live="polite"></p>
+          </section>
+          <section class="settings-panel rounded-xl border border-slate-200 p-4" aria-labelledby="themeTitle">
+            <h3 id="themeTitle" class="font-extrabold text-slate-900">色デザイン</h3>
+            <p class="mt-1 text-sm text-slate-500">選んだ色は、このアプリに保存されます。</p>
+            <div class="theme-choices" role="group" aria-label="色デザイン">
+<button type="button" class="theme-choice focus-ring" data-theme-choice="gray" aria-pressed="false"><span class="theme-swatch" aria-hidden="true" style="background:linear-gradient(140deg,#fff,#8b939e)"></span>グレー</button>
+<button type="button" class="theme-choice focus-ring" data-theme-choice="wine" aria-pressed="false"><span class="theme-swatch" aria-hidden="true" style="background:linear-gradient(140deg,#aa708c,#42182e)"></span>ワイン</button>
+<button type="button" class="theme-choice focus-ring" data-theme-choice="blue" aria-pressed="false"><span class="theme-swatch" aria-hidden="true" style="background:linear-gradient(140deg,#729fcc,#14375c)"></span>ブルー</button>
+<button type="button" class="theme-choice focus-ring" data-theme-choice="black" aria-pressed="false"><span class="theme-swatch" aria-hidden="true" style="background:linear-gradient(140deg,#737b87,#181a1e)"></span>ブラック</button>
+</div></section>
+
+          <section class="settings-panel rounded-xl border border-slate-200 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="font-extrabold text-slate-900">JSON自動バックアップ</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-500">
+                  アプリ内のデータとあわせて、指定したJSONファイルにも自動保存します。
+                </p>
+              </div>
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <input id="dualSaveToggle" type="checkbox" class="h-5 w-5 rounded border-slate-300 text-main focus:ring-main">
+                <span class="text-sm font-bold text-slate-700">有効</span>
+              </label>
+            </div>
+
+            <div class="mt-4 rounded-lg bg-blue-50 p-3 text-sm leading-6 text-blue-800">
+              Google Drive for Desktopを使用している場合は、Google Drive配下の
+              <strong>Task Progress Board</strong> フォルダーなどにJSONファイルを作成してください。
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button id="chooseSyncFileButton" type="button" class="focus-ring rounded-lg bg-main px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
+                JSON保存先を選択
+              </button>
+              <button id="saveSyncFileNowButton" type="button" class="focus-ring rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                今すぐ同期保存
+              </button>
+              <button id="clearSyncFileButton" type="button" class="focus-ring rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-bold text-overdue hover:bg-rose-50">
+                保存先を解除
+              </button>
+            </div>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div class="text-xs font-bold uppercase tracking-wide text-slate-400">保存先</div>
+                <div id="syncFileName" class="mt-1 break-all text-sm font-bold text-slate-700">未設定</div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div class="text-xs font-bold uppercase tracking-wide text-slate-400">同期状態</div>
+                <div id="syncStatus" class="mt-1 text-sm font-bold text-slate-700">未設定</div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <label for="syncDebounceSelect" class="mb-1 block text-sm font-bold text-slate-700">自動保存の待ち時間</label>
+              <select id="syncDebounceSelect" class="focus-ring rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="500">0.5秒</option>
+                <option value="1000">1秒</option>
+                <option value="2000">2秒</option>
+                <option value="5000">5秒</option>
+              </select>
+              <p class="mt-1 text-xs text-slate-400">連続操作中の書き込み回数を抑えるため、最後の変更から指定時間後にJSONへ保存します。</p>
+            </div>
+          </section>
+
+          <section class="settings-panel rounded-xl border border-slate-200 p-4">
+            <h3 class="font-extrabold text-slate-900">JSONから復元</h3>
+            <p class="mt-1 text-sm leading-6 text-slate-500">
+              バックアップJSONを読み込み、現在のアプリデータへ復元します。
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button id="importJsonButton" type="button" class="focus-ring rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                JSONをインポート
+              </button>
+              <button id="exportJsonButton" type="button" class="focus-ring rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                JSONをエクスポート
+              </button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white shadow-2xl">
+        <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+          <h2 id="modalTitle" class="text-xl font-extrabold text-slate-900">タスク詳細</h2>
+          <button id="closeModalButton" type="button" class="focus-ring rounded-lg px-3 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100" aria-label="モーダルを閉じる">閉じる</button>
+        </div>
+        <div id="modalContent" class="p-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const LANGUAGE_KEY = 'progress_board_language_v1';
+      const FONT_SIZE_KEY = 'progress_board_font_size_v1';
+      const originalText = new WeakMap();
+      const JA_TO_EN = {
+        'タスク＆サブタスク進捗管理ボード': 'Task & Subtask Progress Board',
+        '管理ボード': 'Task Board',
+        'ナビゲーション': 'Navigation',
+        'ワークスペース': 'Workspace',
+        'タスク一覧': 'Tasks',
+        '設定': 'Settings',
+        'プロジェクト名を編集': 'Edit project name',
+        'プロジェクト名': 'Project name',
+        '全体進捗': 'Overall progress',
+        '並び替え': 'Sort',
+        '手動順': 'Manual order',
+        '開始日順': 'Start date',
+        '期限順': 'Due date',
+        '保存': 'Save',
+        '⚙ 設定': '⚙ Settings',
+        '＋ メインタスク追加': '+ Add main task',
+        '追加フォームを閉じる': 'Close add form',
+        '保存しました。': 'Saved.',
+        'タイトル': 'Title',
+        '担当者': 'Assignee',
+        '開始日': 'Start date',
+        '期限': 'Due date',
+        '追加する': 'Add',
+        'キャンセル': 'Cancel',
+        '↶ 元に戻す': '↶ Undo',
+        '↷ やり直す': '↷ Redo',
+        '保存確認中': 'Checking save',
+        '同期未設定': 'Sync not configured',
+        '／ バックアップ:': '/ Backup:',
+        '検索': 'Search',
+        'タスク名・担当者・メモ': 'Task, assignee, or note',
+        '状態': 'Status',
+        'すべて': 'All',
+        '未完了': 'Incomplete',
+        '期限超過': 'Overdue',
+        '完了': 'Completed',
+        '完了タスクを折りたたむ': 'Collapse completed tasks',
+        'メインタスク一覧': 'Main task list',
+        '表示とデータ保存を設定できます。': 'Configure display and data storage.',
+        '閉じる': 'Close',
+        'モーダルを閉じる': 'Close dialog',
+        '表示言語': 'Language',
+        '画面のメニューや操作表示を切り替えます。入力したタスク内容は変更しません。': 'Change menus and controls. Your task content is not translated.',
+        '文字サイズ': 'Text size',
+        '画面全体の文字を読みやすい大きさに変更します。': 'Adjust the text size throughout the app.',
+        '小': 'Small',
+        '標準': 'Standard',
+        '大': 'Large',
+        '進捗ゲージの色': 'Progress bar color',
+        '全体進捗とメインタスクに共通で反映します。': 'Applied to overall progress and all main tasks.',
+        'カラー': 'Color',
+        'テーマに合わせる': 'Match theme',
+        'ブルー': 'Blue',
+        'グリーン': 'Green',
+        'ゴールド': 'Gold',
+        '色デザイン': 'Color theme',
+        '選んだ色は、このアプリに保存されます。': 'Your choice is saved in this app.',
+        'グレー': 'Gray',
+        'ワイン': 'Wine',
+        'ブラック': 'Black',
+        'JSON自動バックアップ': 'Automatic JSON backup',
+        'アプリ内のデータとあわせて、指定したJSONファイルにも自動保存します。': 'Automatically save a backup to the selected JSON file.',
+        '有効': 'Enabled',
+        'Google Drive for Desktopを使用している場合は、Google Drive配下の': 'When using Google Drive for Desktop, create the JSON file in a folder such as',
+        'フォルダーなどにJSONファイルを作成してください。': 'inside Google Drive.',
+        'JSON保存先を選択': 'Choose JSON destination',
+        '今すぐ同期保存': 'Sync now',
+        '保存先を解除': 'Clear destination',
+        '保存先': 'Destination',
+        '同期状態': 'Sync status',
+        '未設定': 'Not set',
+        '自動保存の待ち時間': 'Autosave delay',
+        '0.5秒': '0.5 seconds',
+        '1秒': '1 second',
+        '2秒': '2 seconds',
+        '5秒': '5 seconds',
+        '連続操作中の書き込み回数を抑えるため、最後の変更から指定時間後にJSONへ保存します。': 'Save to JSON after the selected delay to reduce writes during repeated actions.',
+        'JSONから復元': 'Restore from JSON',
+        'バックアップJSONを読み込み、現在のアプリデータへ復元します。': 'Load a backup JSON file and restore the app data.',
+        'JSONをインポート': 'Import JSON',
+        'JSONをエクスポート': 'Export JSON',
+        'タスク詳細': 'Task details',
+        'ゲージの色を保存しました。': 'Progress bar color saved.',
+        '色は反映しましたが、この環境には保存できませんでした。': 'The color was applied but could not be saved.',
+        '進行中': 'In progress',
+        '未着手': 'Not started',
+        '無題のプロジェクト': 'Untitled project',
+        'アプリ保存済み': 'App saved',
+        'アプリ保存失敗：JSONを書き出してください': 'App save failed. Export a JSON backup.',
+        '（コピー）': ' (copy)',
+        'メモ・参考URL': 'Notes / reference URL',
+        '作業の補足や参考URL': 'Notes or reference URL',
+        'タスク': 'Task',
+        '子タスク': 'Subtask',
+        '孫タスク': 'Nested task',
+        '手動順に切り替えると移動できます': 'Switch to manual order to move this item',
+        '条件に一致するタスクがありません。検索・絞り込みを変更してください。': 'No tasks match the current search or filter.',
+        'メインタスクはまだありません。': 'No main tasks yet.',
+        '⚠ 期限超過': '⚠ Overdue',
+        '⚠ 開始超過': '⚠ Start date passed',
+        '無題のタスク': 'Untitled task',
+        '進行開始': 'Start',
+        '複製': 'Duplicate',
+        '詳細表示': 'Details',
+        '削除': 'Delete',
+        '進捗率': 'Progress',
+        '検索中：サブタスクを表示': 'Showing subtasks for search',
+        'サブタスクを閉じる ▲': 'Hide subtasks ▲',
+        'サブタスクはありません。': 'No subtasks.',
+        '無題のサブタスク': 'Untitled subtask',
+        '期限未設定': 'No due date',
+        '無題の孫タスク': 'Untitled nested task',
+        'サブタスク': 'Subtasks',
+        '追加を閉じる': 'Close add form',
+        '＋ サブタスク追加': '+ Add subtask',
+        '＋ 孫タスク': '+ Nested task',
+        '孫タスクのタイトル': 'Nested task title',
+        '孫タスクを追加': 'Add nested task',
+        'この環境は直接ファイル保存に未対応です': 'Direct file saving is unavailable in this environment.',
+        'この環境では任意ファイルへの直接保存が利用できません。': 'Direct file saving is unavailable in this environment.',
+        '自動同期待機中': 'Automatic sync ready',
+        '保存先設定済み': 'Destination configured',
+        '保存先の再許可が必要な場合があります': 'The destination may require permission again',
+        '保存先の設定に失敗しました': 'Could not configure the destination',
+        '同期オフ': 'Sync off',
+        '保存先未設定': 'Destination not configured',
+        '変更を検知しました…': 'Change detected…',
+        '同期中…': 'Syncing…',
+        '保存先が設定されていません': 'No destination configured',
+        '保存先への書き込み許可が必要です': 'Permission to write to the destination is required',
+        'JSON同期保存に失敗しました': 'JSON sync failed',
+        'JSONの同期保存先設定を解除しますか？ JSONファイル自体は削除されません。': 'Clear the JSON sync destination? The JSON file itself will not be deleted.',
+        '先にJSON保存先を選択してください。': 'Choose a JSON destination first.',
+        'JSONの書き出しに失敗しました。': 'Could not export JSON.',
+        '現在のタスクデータを、このJSONの内容で置き換えますか？': 'Replace the current task data with this JSON file?',
+        'JSONから復元しました。': 'Restored from JSON.',
+        'JSONの読み込みに失敗しました。': 'Could not read the JSON file.'
+      };
+
+      let currentLanguage = (() => {
+        try { return localStorage.getItem(LANGUAGE_KEY) === 'en' ? 'en' : 'ja'; } catch (_) { return 'ja'; }
+      })();
+      let currentFontSize = (() => {
+        try {
+          const value = localStorage.getItem(FONT_SIZE_KEY);
+          return ['small','standard','large'].includes(value) ? value : 'standard';
+        } catch (_) { return 'standard'; }
+      })();
+
+      function translateCore(value) {
+        if (currentLanguage !== 'en' || !value) return value;
+        const normalized = value.replace(/\s+/g, ' ').trim();
+        if (JA_TO_EN[normalized]) return JA_TO_EN[normalized];
+        let match = normalized.match(/^(\d+) \/ (\d+) 件表示(?:（完了 (\d+) 件を折りたたみ）)?$/);
+        if (match) return `${match[1]} / ${match[2]} shown${match[3] ? ` (${match[3]} completed collapsed)` : ''}`;
+        match = normalized.match(/^サブタスクを表示 \((\d+)\) ▼$/);
+        if (match) return `Show subtasks (${match[1]}) ▼`;
+        match = normalized.match(/^同期済み (.+)$/);
+        if (match) return `Synced ${match[1]}`;
+        match = normalized.match(/^アプリ保存済み (.+)$/);
+        if (match) return `App saved ${match[1]}`;
+        match = normalized.match(/^期限: (.+?)(（期限超過）)? ／ 進捗: (.+)$/);
+        if (match) return `Due: ${match[1]}${match[2] ? ' (overdue)' : ''} / Progress: ${match[3]}`;
+        match = normalized.match(/^期限未設定 ／ 進捗: (.+)$/);
+        if (match) return `No due date / Progress: ${match[1]}`;
+        match = normalized.match(/^期限: (.+?)(（期限超過）)?$/);
+        if (match) return `Due: ${match[1]}${match[2] ? ' (overdue)' : ''}`;
+        match = normalized.match(/^担当者: (.+?) ／ 開始日: (.+?) ／ 期限: (.+?) ／ 進捗: (.+)$/);
+        if (match) return `Assignee: ${match[1]} / Start: ${match[2]} / Due: ${match[3]} / Progress: ${match[4]}`;
+        match = normalized.match(/^(.+)をドラッグして並べ替え（上下キーでも移動）$/);
+        if (match) return `Drag to reorder ${JA_TO_EN[match[1]] || match[1]} (arrow keys also work)`;
+        match = normalized.match(/^「(.+)」を削除しますか？$/);
+        if (match) return `Delete “${match[1]}”?`;
+        return value;
+      }
+
+      function translateString(value) {
+        if (typeof value !== 'string') return value;
+        const match = value.match(/^(\s*)([\s\S]*?)(\s*)$/);
+        return `${match[1]}${translateCore(match[2])}${match[3]}`;
+      }
+
+      const nativeAlert = window.alert.bind(window);
+      const nativeConfirm = window.confirm.bind(window);
+      window.alert = message => nativeAlert(translateString(String(message)));
+      window.confirm = message => nativeConfirm(translateString(String(message)));
+
+      function applyLanguageToDom() {
+        document.documentElement.lang = currentLanguage;
+        document.title = currentLanguage === 'en' ? JA_TO_EN['タスク＆サブタスク進捗管理ボード'] : 'タスク＆サブタスク進捗管理ボード';
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node.parentElement?.closest('[data-user-content],script,style')) continue;
+          if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+          node.nodeValue = currentLanguage === 'en' ? translateString(originalText.get(node)) : originalText.get(node);
+        }
+        document.querySelectorAll('[placeholder],[aria-label],[title]').forEach(element => {
+          ['placeholder','aria-label','title'].forEach(attribute => {
+            if (!element.hasAttribute(attribute) || element.closest('[data-user-content]')) return;
+            const key = `i18n${attribute.replace(/(^|-)([a-z])/g, (_, __, char) => char.toUpperCase())}`;
+            if (!(key in element.dataset)) element.dataset[key] = element.getAttribute(attribute);
+            element.setAttribute(attribute, currentLanguage === 'en' ? translateString(element.dataset[key]) : element.dataset[key]);
+          });
+        });
+        document.querySelectorAll('[data-i18n-source]').forEach(element => {
+          element.textContent = currentLanguage === 'en' ? translateString(element.dataset.i18nSource) : element.dataset.i18nSource;
+        });
+        document.querySelectorAll('[data-language-choice]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.languageChoice === currentLanguage)));
+      }
+
+      function applyFontSize(value) {
+        currentFontSize = ['small','standard','large'].includes(value) ? value : 'standard';
+        document.documentElement.dataset.fontSize = currentFontSize;
+        document.querySelectorAll('[data-font-size-choice]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.fontSizeChoice === currentFontSize)));
+      }
+
+      document.querySelectorAll('[data-language-choice]').forEach(button => {
+        button.addEventListener('click', () => {
+          currentLanguage = button.dataset.languageChoice === 'en' ? 'en' : 'ja';
+          try { localStorage.setItem(LANGUAGE_KEY, currentLanguage); } catch (_) {}
+          render();
+        });
+      });
+      document.querySelectorAll('[data-font-size-choice]').forEach(button => {
+        button.addEventListener('click', () => {
+          applyFontSize(button.dataset.fontSizeChoice);
+          try { localStorage.setItem(FONT_SIZE_KEY, currentFontSize); } catch (_) {}
+        });
+      });
+      applyFontSize(currentFontSize);
+
+
+      const GAUGE_KEY = 'progress_board_gauge_v1';
+      function applyGaugeColor(value) {
+        const color = ['theme','blue','green','gold'].includes(value) ? value : 'theme';
+        document.body.dataset.gauge = color;
+        document.getElementById('gaugeColorSelect').value = color;
+        return color;
+      }
+      let savedGauge = 'theme';
+      try { savedGauge = localStorage.getItem(GAUGE_KEY); } catch (_) {}
+      applyGaugeColor(savedGauge);
+      document.getElementById('gaugeColorSelect').addEventListener('change', event => {
+        const color = applyGaugeColor(event.target.value);
+        const notice = document.getElementById('gaugeColorNotice');
+        try {
+          localStorage.setItem(GAUGE_KEY, color);
+          notice.dataset.i18nSource = 'ゲージの色を保存しました。';
+          notice.textContent = translateString(notice.dataset.i18nSource);
+        } catch (_) {
+          notice.dataset.i18nSource = '色は反映しましたが、この環境には保存できませんでした。';
+          notice.textContent = translateString(notice.dataset.i18nSource);
+        }
+      });
+
+      const THEME_KEY = 'progress_board_theme_v1';
+      function applyTheme(value) {
+        const theme = ['gray','wine','blue','black'].includes(value) ? value : 'gray';
+        document.body.dataset.theme = theme;
+        document.querySelectorAll('[data-theme-choice]').forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+        });
+        return theme;
+      }
+      let savedTheme = 'gray';
+      try { savedTheme = localStorage.getItem(THEME_KEY); } catch (_) {}
+      applyTheme(savedTheme);
+      document.querySelectorAll('[data-theme-choice]').forEach(button => {
+        button.addEventListener('click', () => {
+          const theme = applyTheme(button.dataset.themeChoice);
+          try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+        });
+      });
+
+      const STORAGE_KEY = 'progress_board_state_v1';
+      const SETTINGS_KEY = 'progress_board_settings_v1';
+      const HANDLE_DB_NAME = 'progress_board_file_handles_v1';
+      const HANDLE_STORE_NAME = 'handles';
+      const SYNC_HANDLE_KEY = 'sync_json_file';
+      const initialState = {
+        projectTitle: '管理ボード',
+        tasks: [
+          {
+            id: 't_001',
+            title: 'プロジェクト憲章の策定',
+            assignee: '田中',
+            startDate: '2026-07-15',
+            dueDate: '2026-08-05',
+            status: 'in_progress',
+            createdOrder: 1,
+            subtasks: [
+              { id: 'st_001_001', title: '目的と背景を整理する', dueDate: '2026-07-18', done: true },
+              { id: 'st_001_002', title: 'ステークホルダーを洗い出す', dueDate: '2026-07-22', done: true },
+              { id: 'st_001_003', title: '成功条件を定義する', dueDate: '2026-07-29', done: false },
+              { id: 'st_001_004', title: '最終レビューを実施する', dueDate: '2026-08-04', done: false }
+            ]
+          },
+          {
+            id: 't_002',
+            title: 'AIモデル選定調査',
+            assignee: '佐藤',
+            startDate: '2026-07-20',
+            dueDate: '2026-08-12',
+            status: 'not_started',
+            createdOrder: 2,
+            subtasks: [
+              { id: 'st_002_001', title: '候補モデルを一覧化する', dueDate: '2026-07-25', done: false },
+              { id: 'st_002_002', title: '精度評価の基準を決める', dueDate: '2026-07-30', done: false },
+              { id: 'st_002_003', title: 'コストを比較する', dueDate: '2026-08-04', done: false },
+              { id: 'st_002_004', title: '検証結果をまとめる', dueDate: '2026-08-10', done: false }
+            ]
+          }
+        ]
+      };
+
+      let state = loadState();
+      let syncSettings = loadSyncSettings();
+      let syncFileHandle = null;
+      let syncTimer = null;
+
+      const ui = {
+        sortBy: 'createdOrder',
+        expandedTaskIds: new Set(),
+        editing: null,
+        modalTaskId: null,
+        taskFormOpen: false,
+        subtaskFormOpen: false,
+        grandchildFormSubtaskId: null
+      };
+
+      const el = {
+        projectTitle: document.getElementById('projectTitle'),
+        headerProgress: document.getElementById('headerProgress'),
+        headerProgressFill: document.getElementById('headerProgressFill'),
+        headerProgressText: document.getElementById('headerProgressText'),
+        sortSelect: document.getElementById('sortSelect'),
+        saveButton: document.getElementById('saveButton'),
+        settingsButton: document.getElementById('settingsButton'),
+        saveNotice: document.getElementById('saveNotice'),
+        settingsModal: document.getElementById('settingsModal'),
+        closeSettingsButton: document.getElementById('closeSettingsButton'),
+        dualSaveToggle: document.getElementById('dualSaveToggle'),
+        chooseSyncFileButton: document.getElementById('chooseSyncFileButton'),
+        saveSyncFileNowButton: document.getElementById('saveSyncFileNowButton'),
+        clearSyncFileButton: document.getElementById('clearSyncFileButton'),
+        syncFileName: document.getElementById('syncFileName'),
+        syncStatus: document.getElementById('syncStatus'),
+        syncDebounceSelect: document.getElementById('syncDebounceSelect'),
+        importJsonButton: document.getElementById('importJsonButton'),
+        exportJsonButton: document.getElementById('exportJsonButton'),
+        toggleTaskFormButton: document.getElementById('toggleTaskFormButton'),
+        taskForm: document.getElementById('taskForm'),
+        cancelTaskFormButton: document.getElementById('cancelTaskFormButton'),
+        taskList: document.getElementById('taskList'),
+        modal: document.getElementById('modal'),
+        modalContent: document.getElementById('modalContent'),
+        closeModalButton: document.getElementById('closeModalButton')
+      };
+
+      function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function isValidDateString(value) {
+        if (value === '') return true;
+        return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value + 'T00:00:00').getTime());
+      }
+
+      function normalizeState(candidate) {
+        if (!candidate || typeof candidate !== 'object') return normalizeState(initialState);
+        const projectTitle = typeof candidate.projectTitle === 'string' ? candidate.projectTitle : '管理ボード';
+        const tasks = Array.isArray(candidate.tasks) ? candidate.tasks : [];
+        const normalizedTasks = tasks.map((task, index) => ({
+          id: typeof task.id === 'string' && task.id ? task.id : `t_${String(index + 1).padStart(3, '0')}`,
+          title: typeof task.title === 'string' ? task.title : '',
+          note: typeof task.note === 'string' ? task.note : '',
+          assignee: typeof task.assignee === 'string' ? task.assignee : '',
+          startDate: typeof task.startDate === 'string' && isValidDateString(task.startDate) ? task.startDate : '',
+          dueDate: typeof task.dueDate === 'string' && isValidDateString(task.dueDate) ? task.dueDate : '',
+          status: ['not_started', 'in_progress', 'completed'].includes(task.status) ? task.status : 'not_started',
+          createdOrder: Number.isInteger(task.createdOrder) ? task.createdOrder : index + 1,
+          subtasks: Array.isArray(task.subtasks) ? task.subtasks.map((subtask, subIndex) => ({
+            id: typeof subtask.id === 'string' && subtask.id ? subtask.id : `st_${String(index + 1).padStart(3, '0')}_${String(subIndex + 1).padStart(3, '0')}`,
+            title: typeof subtask.title === 'string' ? subtask.title : '',
+          note: typeof subtask.note === 'string' ? subtask.note : '',
+            dueDate: typeof subtask.dueDate === 'string' && isValidDateString(subtask.dueDate) ? subtask.dueDate : '',
+            done: Boolean(subtask.done),
+            children: Array.isArray(subtask.children) ? subtask.children.map((child, childIndex) => ({
+              id: typeof child.id === 'string' && child.id ? child.id : `gc_${String(index + 1).padStart(3, '0')}_${String(subIndex + 1).padStart(3, '0')}_${String(childIndex + 1).padStart(3, '0')}`,
+              title: typeof child.title === 'string' ? child.title : '',
+          note: typeof child.note === 'string' ? child.note : '',
+              dueDate: typeof child.dueDate === 'string' && isValidDateString(child.dueDate) ? child.dueDate : '',
+              done: Boolean(child.done)
+            })) : []
+          })) : []
+        }));
+        return { projectTitle, tasks: normalizedTasks };
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? normalizeState(JSON.parse(raw)) : normalizeState(initialState);
+        } catch (error) {
+          console.warn('保存データを読み込めませんでした。初期データを使用します。', error);
+          return normalizeState(initialState);
+        }
+      }
+
+      function loadSyncSettings() {
+        try {
+          const raw = localStorage.getItem(SETTINGS_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          return {
+            dualSaveEnabled: Boolean(parsed.dualSaveEnabled),
+            syncDebounceMs: [500, 1000, 2000, 5000].includes(Number(parsed.syncDebounceMs)) ? Number(parsed.syncDebounceMs) : 1000,
+            fileName: typeof parsed.fileName === 'string' ? parsed.fileName : ''
+          };
+        } catch (error) {
+          console.warn('同期設定を読み込めませんでした。', error);
+          return { dualSaveEnabled: false, syncDebounceMs: 1000, fileName: '' };
+        }
+      }
+
+      function persistSyncSettings() {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(syncSettings));
+      }
+
+      function openHandleDb() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(HANDLE_DB_NAME, 1);
+          request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(HANDLE_STORE_NAME)) db.createObjectStore(HANDLE_STORE_NAME);
+          };
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      async function saveHandleToDb(handle) {
+        const db = await openHandleDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+          tx.objectStore(HANDLE_STORE_NAME).put(handle, SYNC_HANDLE_KEY);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      }
+
+      async function loadHandleFromDb() {
+        try {
+          const db = await openHandleDb();
+          const handle = await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLE_STORE_NAME, 'readonly');
+            const request = tx.objectStore(HANDLE_STORE_NAME).get(SYNC_HANDLE_KEY);
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = () => reject(request.error);
+          });
+          db.close();
+          return handle;
+        } catch (error) {
+          console.warn('保存先ハンドルを復元できませんでした。', error);
+          return null;
+        }
+      }
+
+      async function clearHandleFromDb() {
+        try {
+          const db = await openHandleDb();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+            tx.objectStore(HANDLE_STORE_NAME).delete(SYNC_HANDLE_KEY);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+          db.close();
+        } catch (error) {
+          console.warn('保存先ハンドルの解除に失敗しました。', error);
+        }
+      }
+
+      function serializedState() {
+        return JSON.stringify({
+          schemaVersion: 1,
+          exportedAt: new Date().toISOString(),
+          data: state
+        }, null, 2);
+      }
+
+      function setSyncStatus(message, tone = 'normal') {
+        if (!el.syncStatus) return;
+        el.syncStatus.dataset.i18nSource = message;
+        document.getElementById('fileSaveStatus').dataset.i18nSource = message;
+        el.syncStatus.textContent = translateString(message);
+        document.getElementById('fileSaveStatus').textContent = translateString(message);
+        el.syncStatus.className = 'mt-1 text-sm font-bold ' + (
+          tone === 'ok' ? 'text-emerald-700' :
+          tone === 'error' ? 'text-rose-700' :
+          tone === 'warn' ? 'text-amber-700' :
+          'text-slate-700'
+        );
+      }
+
+      async function ensureWritePermission(handle, request = false) {
+        if (!handle) return false;
+        const options = { mode: 'readwrite' };
+        try {
+          if (await handle.queryPermission(options) === 'granted') return true;
+          if (request && await handle.requestPermission(options) === 'granted') return true;
+        } catch (error) {
+          console.warn('ファイル権限確認に失敗しました。', error);
+        }
+        return false;
+      }
+
+      async function writeSyncFile({ requestPermission = false } = {}) {
+        if (!syncSettings.dualSaveEnabled) return false;
+        if (!syncFileHandle) {
+          setSyncStatus('保存先が設定されていません', 'warn');
+          return false;
+        }
+
+        if (window.desktopAPI) {
+          try {
+            setSyncStatus('同期中…');
+            const result = await window.desktopAPI.writeSyncFile(serializedState());
+            if (!result || !result.ok) {
+              setSyncStatus('保存先が設定されていません', 'warn');
+              return false;
+            }
+            syncSettings.fileName = result.name || syncSettings.fileName;
+            persistSyncSettings();
+            setSyncStatus(`同期済み ${new Date().toLocaleTimeString()}`, 'ok');
+            return true;
+          } catch (error) {
+            console.error('JSON同期保存に失敗しました。', error);
+            setSyncStatus('JSON同期保存に失敗しました', 'error');
+            return false;
+          }
+        }
+
+        const permitted = await ensureWritePermission(syncFileHandle, requestPermission);
+        if (!permitted) {
+          setSyncStatus('保存先への書き込み許可が必要です', 'warn');
+          return false;
+        }
+
+        try {
+          setSyncStatus('同期中…');
+          const writable = await syncFileHandle.createWritable();
+          await writable.write(serializedState());
+          await writable.close();
+          setSyncStatus(`同期済み ${new Date().toLocaleTimeString()}`, 'ok');
+          return true;
+        } catch (error) {
+          console.error('JSON同期保存に失敗しました。', error);
+          setSyncStatus('JSON同期保存に失敗しました', 'error');
+          return false;
+        }
+      }
+
+      function scheduleSyncSave() {
+        if (!syncSettings.dualSaveEnabled || !syncFileHandle) {
+          setSyncStatus(!syncSettings.dualSaveEnabled ? '同期オフ' : '保存先未設定');
+          return;
+        }
+        if (syncTimer) window.clearTimeout(syncTimer);
+        setSyncStatus('変更を検知しました…');
+        syncTimer = window.setTimeout(() => {
+          writeSyncFile({ requestPermission: false });
+        }, syncSettings.syncDebounceMs);
+      }
+
+      function saveState(showNotice = true) {
+        const saved = persistBoard();
+        scheduleSyncSave();
+        if (showNotice && saved) {
+          el.saveNotice.classList.remove('hidden');
+          window.setTimeout(() => el.saveNotice.classList.add('hidden'), 1800);
+        }
+      }
+
+      function todayString() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function isOverdue(date, incomplete) {
+        return Boolean(date && incomplete && date < todayString());
+      }
+
+      function formatProgress(value) {
+        return `${Number(value || 0).toFixed(2)}%`;
+      }
+
+      function subtaskProgress(subtask) {
+        const children = Array.isArray(subtask.children) ? subtask.children : [];
+        if (!children.length) return subtask.done ? 100 : 0;
+        return children.reduce((sum, child) => sum + (child.done ? 100 : 0), 0) / children.length;
+      }
+
+      function taskProgress(task) {
+        if (!task.subtasks.length) return task.status === 'completed' ? 100 : 0;
+        return task.subtasks.reduce((sum, subtask) => sum + subtaskProgress(subtask), 0) / task.subtasks.length;
+      }
+
+      function projectProgress() {
+        if (!state.tasks.length) return 0;
+        return state.tasks.reduce((sum, task) => sum + taskProgress(task), 0) / state.tasks.length;
+      }
+
+      function syncSubtaskStatus(subtask) {
+        const children = Array.isArray(subtask.children) ? subtask.children : [];
+        if (children.length) subtask.done = children.every(child => child.done);
+      }
+
+      function syncTaskStatus(task) {
+        task.subtasks.forEach(syncSubtaskStatus);
+        if (task.subtasks.length > 0 && taskProgress(task) >= 100) {
+          task.status = 'completed';
+        } else if (task.status === 'completed') {
+          task.status = 'in_progress';
+        }
+      }
+
+      function nextTaskId() {
+        const max = state.tasks.reduce((current, task) => {
+          const match = /^t_(\d+)$/.exec(task.id);
+          return match ? Math.max(current, Number(match[1])) : current;
+        }, 0);
+        return `t_${String(max + 1).padStart(3, '0')}`;
+      }
+
+      function nextCreatedOrder() {
+        return state.tasks.reduce((max, task) => Math.max(max, task.createdOrder), 0) + 1;
+      }
+
+      function nextSubtaskId(task) {
+        const taskPart = task.id.replace(/^t_/, '');
+        const max = task.subtasks.reduce((current, subtask) => {
+          const match = /_(\d+)$/.exec(subtask.id);
+          return match ? Math.max(current, Number(match[1])) : current;
+        }, 0);
+        return `st_${taskPart}_${String(max + 1).padStart(3, '0')}`;
+      }
+
+      function nextGrandchildId(task, subtask) {
+        const taskPart = task.id.replace(/^t_/, '');
+        const subtaskPart = subtask.id.split('_').pop();
+        const children = Array.isArray(subtask.children) ? subtask.children : [];
+        const max = children.reduce((current, child) => {
+          const match = /_(\d+)$/.exec(child.id);
+          return match ? Math.max(current, Number(match[1])) : current;
+        }, 0);
+        return `gc_${taskPart}_${subtaskPart}_${String(max + 1).padStart(3, '0')}`;
+      }
+
+      function createButton(label, className, action, taskId, extra = {}) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.className = `focus-ring ${className}`;
+        button.dataset.action = action;
+        if (taskId) button.dataset.taskId = taskId;
+        Object.entries(extra).forEach(([key, value]) => {
+          button.dataset[key] = value;
+        });
+        return button;
+      }
+
+      function statusMeta(status) {
+        if (status === 'completed') return { label: '完了', classes: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+        if (status === 'in_progress') return { label: '進行中', classes: 'bg-amber-100 text-amber-700 border-amber-200' };
+        return { label: '未着手', classes: 'bg-slate-100 text-slate-600 border-slate-200' };
+      }
+
+      function renderProjectTitle() {
+        el.projectTitle.replaceChildren();
+        if (ui.editing && ui.editing.type === 'projectTitle') {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = state.projectTitle;
+          input.className = 'focus-ring w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-2xl font-extrabold text-slate-900 sm:text-3xl';
+          input.dataset.editor = 'projectTitle';
+          input.setAttribute('aria-label', 'プロジェクト名');
+          el.projectTitle.appendChild(input);
+          requestAnimationFrame(() => { input.focus(); input.select(); });
+        } else {
+          const title = document.createElement('span');
+          title.dataset.userContent = '';
+          title.textContent = state.projectTitle === '管理ボード'
+            ? translateString('管理ボード')
+            : (state.projectTitle || translateString('無題のプロジェクト'));
+          el.projectTitle.appendChild(title);
+        }
+      }
+
+      function renderHeader() {
+        renderProjectTitle();
+        const progress = projectProgress();
+        el.headerProgressFill.style.width = `${progress}%`;
+        el.headerProgressText.textContent = formatProgress(progress);
+        el.headerProgress.setAttribute('aria-valuenow', String(progress));
+      }
+
+      const undoHistory = [], redoHistory = [];
+      let lastSnapshot = null;
+      function recordHistory() {
+        const next = JSON.stringify(state);
+        if (lastSnapshot !== null && next !== lastSnapshot) {
+          undoHistory.push(lastSnapshot);
+          if (undoHistory.length > 50) undoHistory.shift();
+          redoHistory.length = 0;
+        }
+        lastSnapshot = next;
+        document.getElementById('undoButton').disabled = !undoHistory.length;
+        document.getElementById('redoButton').disabled = !redoHistory.length;
+      }
+      function restoreHistory(undo) {
+        const from = undo ? undoHistory : redoHistory, to = undo ? redoHistory : undoHistory;
+        if (!from.length) return;
+        to.push(JSON.stringify(state));
+        state = normalizeState(JSON.parse(from.pop()));
+        ui.editing = null;
+        lastSnapshot = JSON.stringify(state);
+        render();
+      }
+      function persistBoard() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          const message = 'アプリ保存済み ' + new Date().toLocaleTimeString();
+          document.getElementById('localSaveStatus').dataset.i18nSource = message;
+          document.getElementById('localSaveStatus').textContent = translateString(message);
+          return true;
+        } catch (_) {
+          const message = 'アプリ保存失敗：JSONを書き出してください';
+          document.getElementById('localSaveStatus').dataset.i18nSource = message;
+          document.getElementById('localSaveStatus').textContent = translateString(message);
+          return false;
+        }
+      }
+      function taskMatches(task, query, filter) {
+        const nodes = [task, ...task.subtasks.flatMap(sub => [sub, ...sub.children])];
+        const text = nodes.map(item => [item.title,item.note,item.assignee].filter(Boolean).join(' ')).join(' ').toLocaleLowerCase();
+        if (query && !text.includes(query.toLocaleLowerCase())) return false;
+        if (filter === 'unfinished' && task.status === 'completed') return false;
+        if (filter === 'completed' && task.status !== 'completed') return false;
+        if (filter === 'overdue' && !nodes.some(item => isOverdue(item.dueDate,
+          item === task ? task.status !== 'completed' : Array.isArray(item.children) ? subtaskProgress(item) < 100 : !item.done))) return false;
+        return true;
+      }
+      function duplicateTask(task) {
+        const copy = clone(task);
+        copy.id = nextTaskId(); copy.title += currentLanguage === 'en' ? ' (copy)' : '（コピー）';
+        copy.createdOrder = nextCreatedOrder(); copy.status = 'not_started';
+        copy.subtasks.forEach((sub,index) => {
+          sub.id = copy.id + '_s_' + (index + 1); sub.done = false;
+          sub.children.forEach((child,i) => { child.id = sub.id + '_' + (i+1); child.done = false; });
+        });
+        state.tasks.push(copy);
+      }
+      function appendNote(container, item) {
+        const label = document.createElement('label'); label.className = 'task-note';
+        label.textContent = 'メモ・参考URL';
+        const input = document.createElement('textarea');
+        input.value = item.note || ''; input.placeholder = '作業の補足や参考URL';
+        input.addEventListener('change', () => { item.note = input.value; render(); });
+        label.appendChild(input); container.appendChild(label);
+      }
+      document.getElementById('undoButton').addEventListener('click', () => restoreHistory(true));
+      document.getElementById('redoButton').addEventListener('click', () => restoreHistory(false));
+      document.addEventListener('keydown', event => {
+        if (!(event.metaKey || event.ctrlKey) || event.altKey || event.target.closest('input,textarea,select,[contenteditable]')) return;
+        if (event.key.toLowerCase() === 'z') { event.preventDefault(); restoreHistory(!event.shiftKey); }
+      });
+      ['taskSearch','taskFilter','collapseCompleted'].forEach(id => {
+        document.getElementById(id).addEventListener(id === 'taskSearch' ? 'input' : 'change', () => renderTasks());
+      });
+
+      function sortedTasks() {
+        const tasks = [...state.tasks];
+        const byDate = field => (a, b) => {
+          const av = a[field];
+          const bv = b[field];
+          if (!av && !bv) return a.createdOrder - b.createdOrder;
+          if (!av) return 1;
+          if (!bv) return -1;
+          return av.localeCompare(bv) || a.createdOrder - b.createdOrder;
+        };
+        if (ui.sortBy === 'startDate') return tasks.sort(byDate('startDate'));
+        if (ui.sortBy === 'dueDate') return tasks.sort(byDate('dueDate'));
+        return tasks.sort((a, b) => a.createdOrder - b.createdOrder);
+      }
+
+      function createEditableField(task, field, label, value, inputType = 'text') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'min-w-0';
+        const caption = document.createElement('div');
+        caption.className = 'mb-1 text-xs font-bold uppercase tracking-wide text-slate-400';
+        caption.textContent = label;
+        wrapper.appendChild(caption);
+
+        const isEditing = ui.editing && ui.editing.type === 'taskField' && ui.editing.taskId === task.id && ui.editing.field === field;
+        if (isEditing) {
+          const input = document.createElement('input');
+          input.type = inputType;
+          input.value = value;
+          input.className = 'focus-ring w-full rounded-lg border border-main bg-white px-3 py-2 text-sm';
+          input.dataset.editor = 'taskField';
+          input.dataset.taskId = task.id;
+          input.dataset.field = field;
+          wrapper.appendChild(input);
+          requestAnimationFrame(() => { input.focus(); if (inputType === 'text') input.select(); });
+        } else {
+          const button = createButton(value || '未設定', 'w-full rounded-lg px-2 py-1 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100', 'edit-field', task.id, { field });
+          if (value) button.dataset.userContent = '';
+          wrapper.appendChild(button);
+        }
+        return wrapper;
+      }
+
+
+      // Ordering is stored in the existing state: ranks for tasks, array order for descendants.
+      function reorderSiblings(source, target, after) {
+        if (source.kind !== target.kind || source.taskId !== target.taskId || source.subtaskId !== target.subtaskId) return false;
+        if (source.kind === 'task' && ui.sortBy !== 'createdOrder') return false;
+        let items;
+        if (source.kind === 'task') items = [...state.tasks].sort((a,b) => a.createdOrder - b.createdOrder);
+        else {
+          const task = state.tasks.find(t => t.id === source.taskId);
+          if (!task) return false;
+          if (source.kind === 'subtask') items = task.subtasks;
+          else if (source.kind === 'grandchild') items = task.subtasks.find(t => t.id === source.subtaskId)?.children;
+        }
+        if (!items) return false;
+        const from = items.findIndex(t => t.id === source.id);
+        const to = items.findIndex(t => t.id === target.id);
+        if (from < 0 || to < 0 || from === to) return false;
+        const destination = to + (after ? 1 : 0) - (from < to ? 1 : 0);
+        if (destination === from) return false;
+        items.splice(destination, 0, items.splice(from, 1)[0]);
+        if (source.kind === 'task') {
+          items.forEach((task,index) => { task.createdOrder = index + 1; });
+          state.tasks = items;
+        }
+        return true;
+      }
+
+      function createDragPreview(node, pointer) {
+        const rect = node.getBoundingClientRect();
+        const preview = node.cloneNode(true);
+        // Freeze computed styles so cards retain their appearance outside lists/modals.
+        const originals = [node, ...node.querySelectorAll('*')];
+        const copies = [preview, ...preview.querySelectorAll('*')];
+        copies.forEach((copy, index) => {
+          const computed = getComputedStyle(originals[index]);
+          for (const property of computed) copy.style.setProperty(property, computed.getPropertyValue(property));
+          copy.removeAttribute('id');
+          copy.removeAttribute('data-reorder');
+          copy.removeAttribute('name');
+        });
+        preview.classList.add('drag-preview');
+        preview.setAttribute('aria-hidden', 'true');
+        preview.inert = true;
+        Object.assign(preview.style, {
+          position:'fixed', left:'0px', top:'0px', right:'auto', bottom:'auto',
+          width:rect.width + 'px', height:rect.height + 'px', margin:'0',
+          boxSizing:'border-box', zIndex:'10000', opacity:'.88',
+          transition:'none', transformOrigin:'top left',
+          boxShadow:'0 22px 48px rgba(35,43,55,.32),0 0 0 1px rgba(255,255,255,.9)',
+          willChange:'transform', pointerEvents:'none'
+        });
+        document.body.appendChild(preview);
+        const offsetX = pointer.clientX - rect.left;
+        const offsetY = pointer.clientY - rect.top;
+        const move = event => {
+          preview.style.transform = `translate3d(${event.clientX - offsetX}px, ${event.clientY - offsetY}px, 0)`;
+        };
+        move(pointer);
+        return { move, remove: () => preview.remove() };
+      }
+
+      function addReorderHandle(node, kind, id, taskId = '', subtaskId = '') {
+        node.classList.add('reorder-item');
+        const info = {kind, id, taskId, subtaskId};
+        node.dataset.reorder = JSON.stringify(info);
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = 'reorder-handle focus-ring';
+        handle.textContent = '⠿';
+        handle.disabled = kind === 'task' && ui.sortBy !== 'createdOrder';
+        const label = kind === 'task' ? 'タスク' : kind === 'subtask' ? '子タスク' : '孫タスク';
+        handle.title = handle.disabled ? '手動順に切り替えると移動できます' : label + 'をドラッグして並べ替え（上下キーでも移動）';
+        handle.setAttribute('aria-label', handle.title);
+        handle.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+        handle.addEventListener('keydown', e => {
+          if (!['ArrowUp','ArrowDown'].includes(e.key)) return;
+          e.preventDefault(); e.stopPropagation();
+          const siblings = [...node.parentElement.children].filter(n => n.dataset.reorder);
+          const index = siblings.indexOf(node), delta = e.key === 'ArrowUp' ? -1 : 1;
+          const target = siblings[index + delta];
+          if (target && reorderSiblings(info, JSON.parse(target.dataset.reorder), delta > 0)) {
+            const root = node.closest('#modalContent') || el.taskList;
+            render();
+            [...root.querySelectorAll('[data-reorder]')].find(n => n.dataset.reorder === JSON.stringify(info))?.querySelector('.reorder-handle')?.focus();
+          }
+        });
+        handle.addEventListener('pointerdown', e => {
+          if (e.button !== 0 || handle.disabled) return;
+          e.preventDefault(); e.stopPropagation();
+          handle.setPointerCapture(e.pointerId);
+          let target = null, after = false, moved = false, preview = null;
+          const clear = () => {
+            target?.classList.remove('drop-before','drop-after');
+            target = null;
+          };
+          const move = event => {
+            if (event.pointerId !== e.pointerId) return;
+            if (!moved && Math.hypot(event.clientX-e.clientX,event.clientY-e.clientY) < 5) return;
+            if (!preview) preview = createDragPreview(node, e);
+            preview.move(event);
+            moved = true; node.classList.add('reorder-dragging'); clear();
+            let hit = document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-reorder]');
+            while (hit && (JSON.parse(hit.dataset.reorder).kind !== kind)) hit = hit.parentElement?.closest('[data-reorder]');
+            if (!hit || hit === node || hit.parentElement !== node.parentElement) return;
+            const candidate = JSON.parse(hit.dataset.reorder);
+            if (candidate.taskId !== taskId || candidate.subtaskId !== subtaskId) return;
+            target = hit;
+            const rect = hit.getBoundingClientRect();
+            after = event.clientY > rect.top + rect.height / 2;
+            hit.classList.add(after ? 'drop-after' : 'drop-before');
+            const scroller = node.closest('#modal > div');
+            const bounds = scroller ? scroller.getBoundingClientRect() : {top:0,bottom:innerHeight};
+            const amount = event.clientY < bounds.top + 60 ? -18 : event.clientY > bounds.bottom - 60 ? 18 : 0;
+            if (amount) (scroller || window).scrollBy(0,amount);
+          };
+          const finish = event => {
+            if (event.pointerId !== undefined && event.pointerId !== e.pointerId) return;
+            const destination = target ? JSON.parse(target.dataset.reorder) : null;
+            clear(); node.classList.remove('reorder-dragging');
+            preview?.remove(); preview = null;
+            window.removeEventListener('blur',finish);
+            handle.removeEventListener('pointermove',move);
+            handle.removeEventListener('pointerup',finish);
+            handle.removeEventListener('pointercancel',finish);
+            handle.removeEventListener('lostpointercapture',finish);
+            document.removeEventListener('keydown',cancel);
+            if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+            if (event.type === 'pointerup' && destination && reorderSiblings(info,destination,after)) render();
+          };
+          const cancel = event => { if (event.key === 'Escape') finish(event); };
+          handle.addEventListener('pointermove',move);
+          handle.addEventListener('pointerup',finish);
+          handle.addEventListener('pointercancel',finish);
+          handle.addEventListener('lostpointercapture',finish);
+          document.addEventListener('keydown',cancel);
+          window.addEventListener('blur',finish);
+        });
+        node.prepend(handle);
+      }
+
+      function renderTasks() {
+        el.taskList.replaceChildren();
+        const query = document.getElementById('taskSearch').value.trim();
+        const filter = document.getElementById('taskFilter').value;
+        const collapsed = document.getElementById('collapseCompleted').checked && filter !== 'completed' && !query;
+        const matching = sortedTasks().filter(task => taskMatches(task,query,filter));
+        const tasks = matching.filter(task => !collapsed || task.status !== 'completed');
+        document.getElementById('filterSummary').textContent = `${tasks.length} / ${state.tasks.length} 件表示` + (collapsed ? `（完了 ${matching.length-tasks.length} 件を折りたたみ）` : '');
+
+        if (!tasks.length) {
+          const empty = document.createElement('div');
+          empty.className = 'rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500';
+          empty.textContent = state.tasks.length ? '条件に一致するタスクがありません。検索・絞り込みを変更してください。' : 'メインタスクはまだありません。';
+          el.taskList.appendChild(empty);
+          return;
+        }
+
+        tasks.forEach(task => {
+          const progress = taskProgress(task);
+          const meta = statusMeta(task.status);
+          const taskDueOverdue = isOverdue(task.dueDate, task.status !== 'completed');
+          const taskStartOverdue = isOverdue(task.startDate, task.status === 'not_started');
+          const warning = taskDueOverdue || taskStartOverdue;
+
+          const card = document.createElement('article');
+          card.className = `overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md ${warning ? 'border-rose-300 ring-1 ring-rose-100' : 'border-slate-200'}`;
+          card.dataset.taskId = task.id;
+
+          const top = document.createElement('div');
+          top.className = 'p-5';
+
+          const headingRow = document.createElement('div');
+          headingRow.className = 'flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between';
+
+          const headingWrap = document.createElement('div');
+          headingWrap.className = 'min-w-0 flex-1';
+          const badges = document.createElement('div');
+          badges.className = 'mb-3 flex flex-wrap items-center gap-2';
+          const status = document.createElement('span');
+          status.className = `inline-flex rounded-full border px-2.5 py-1 text-xs font-extrabold ${meta.classes}`;
+          status.textContent = meta.label;
+          badges.appendChild(status);
+          if (taskDueOverdue) {
+            const badge = document.createElement('span');
+            badge.className = 'inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-extrabold text-overdue';
+            badge.textContent = '⚠ 期限超過';
+            badges.appendChild(badge);
+          }
+          if (taskStartOverdue) {
+            const badge = document.createElement('span');
+            badge.className = 'inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-extrabold text-overdue';
+            badge.textContent = '⚠ 開始超過';
+            badges.appendChild(badge);
+          }
+          headingWrap.appendChild(badges);
+
+          const titleEditing = ui.editing && ui.editing.type === 'taskField' && ui.editing.taskId === task.id && ui.editing.field === 'title';
+          if (titleEditing) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = task.title;
+            input.className = 'focus-ring w-full rounded-lg border border-main px-3 py-2 text-xl font-extrabold text-slate-900';
+            input.dataset.editor = 'taskField';
+            input.dataset.taskId = task.id;
+            input.dataset.field = 'title';
+            headingWrap.appendChild(input);
+            requestAnimationFrame(() => { input.focus(); input.select(); });
+          } else {
+            const titleButton = createButton(task.title || '無題のタスク', 'w-full rounded-lg px-2 py-1 text-left text-xl font-extrabold text-slate-900 hover:bg-slate-100', 'edit-field', task.id, { field: 'title' });
+            if (task.title) titleButton.dataset.userContent = '';
+            headingWrap.appendChild(titleButton);
+          }
+
+          const actions = document.createElement('div');
+          actions.className = 'flex flex-wrap gap-2';
+          if (task.status === 'not_started') {
+            actions.appendChild(createButton('進行開始', 'rounded-lg bg-in_progress px-3 py-2 text-sm font-bold text-white hover:bg-amber-600', 'start-task', task.id));
+          }
+          actions.appendChild(createButton('複製', 'rounded-lg border px-3 py-2 text-sm', 'duplicate-task', task.id));
+          actions.appendChild(createButton('詳細表示', 'rounded-lg bg-main px-3 py-2 text-sm font-bold text-white hover:bg-blue-700', 'open-detail', task.id));
+          actions.appendChild(createButton('削除', 'rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm font-bold text-overdue hover:bg-rose-50', 'delete-task', task.id));
+
+          headingRow.appendChild(headingWrap);
+          headingRow.appendChild(actions);
+          top.appendChild(headingRow);
+
+          const fields = document.createElement('div');
+          fields.className = 'mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4';
+          fields.appendChild(createEditableField(task, 'assignee', '担当者', task.assignee));
+          fields.appendChild(createEditableField(task, 'startDate', '開始日', task.startDate, 'date'));
+          fields.appendChild(createEditableField(task, 'dueDate', '期限', task.dueDate, 'date'));
+          const progressBox = document.createElement('div');
+          progressBox.innerHTML = '<div class="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">進捗率</div>';
+          const progressValue = document.createElement('div');
+          progressValue.className = 'text-sm font-extrabold text-slate-700';
+          progressValue.textContent = formatProgress(progress);
+          progressBox.appendChild(progressValue);
+          fields.appendChild(progressBox);
+          top.appendChild(fields);
+
+          const progressTrack = document.createElement('div');
+          progressTrack.className = 'mt-5 h-3 overflow-hidden rounded-full bg-slate-200 shadow-inner';
+          const progressFill = document.createElement('div');
+          progressFill.className = 'progress-fill h-full rounded-full bg-gradient-to-r from-blue-500 via-main to-blue-700 shadow-[0_0_12px_rgba(37,99,235,0.35)]';
+          progressFill.style.width = `${progress}%`;
+          progressTrack.appendChild(progressFill);
+          top.appendChild(progressTrack);
+
+          const accordionButton = createButton(query ? '検索中：サブタスクを表示' : (ui.expandedTaskIds.has(task.id) || query) ? 'サブタスクを閉じる ▲' : `サブタスクを表示 (${task.subtasks.length}) ▼`, 'mt-4 rounded-lg px-2 py-1 text-sm font-bold text-main hover:bg-blue-50', 'toggle-accordion', task.id);
+          accordionButton.setAttribute('aria-expanded', String(Boolean(ui.expandedTaskIds.has(task.id) || query)));
+          top.appendChild(accordionButton);
+          card.appendChild(top);
+
+          if (ui.expandedTaskIds.has(task.id) || query) {
+            const subArea = document.createElement('div');
+            subArea.className = 'border-t border-slate-200 bg-slate-50 px-5 py-4';
+            if (!task.subtasks.length) {
+              const empty = document.createElement('p');
+              empty.className = 'text-sm text-slate-500';
+              empty.textContent = 'サブタスクはありません。';
+              subArea.appendChild(empty);
+            } else {
+              const list = document.createElement('div');
+              list.className = 'space-y-2';
+              task.subtasks.forEach(subtask => {
+                const progress = subtaskProgress(subtask);
+                const overdue = isOverdue(subtask.dueDate, progress < 100);
+                const group = document.createElement('div');
+                group.className = 'space-y-2';
+
+                const row = document.createElement('label');
+                row.className = `subtask-panel flex items-start gap-3 rounded-lg border p-3 ${overdue ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-white'} ${subtask.children.length ? 'cursor-default' : 'cursor-pointer'}`;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = progress >= 100;
+                checkbox.disabled = subtask.children.length > 0;
+                checkbox.className = 'mt-1 h-4 w-4 rounded border-slate-300 text-main focus:ring-main disabled:cursor-not-allowed disabled:opacity-50';
+                checkbox.dataset.action = 'toggle-subtask';
+                checkbox.dataset.taskId = task.id;
+                checkbox.dataset.subtaskId = subtask.id;
+
+                const body = document.createElement('div');
+                body.className = 'min-w-0 flex-1';
+                const title = document.createElement('div');
+                title.className = `font-semibold ${progress >= 100 ? 'text-slate-400 line-through' : 'text-slate-700'}`;
+                title.textContent = subtask.title || '無題のサブタスク';
+                if (subtask.title) title.dataset.userContent = '';
+                const meta = document.createElement('div');
+                meta.className = `mt-1 text-xs font-semibold ${overdue ? 'text-overdue' : 'text-slate-400'}`;
+                meta.textContent = `${subtask.dueDate ? `期限: ${subtask.dueDate}${overdue ? '（期限超過）' : ''}` : '期限未設定'} ／ 進捗: ${formatProgress(progress)}`;
+                body.append(title, meta);
+                row.append(checkbox, body);
+                group.appendChild(row);
+
+                if (subtask.children.length) {
+                  const childList = document.createElement('div');
+                  childList.className = 'ml-7 space-y-2 border-l-2 border-blue-100 pl-4';
+                  subtask.children.forEach(child => {
+                    const childOverdue = isOverdue(child.dueDate, !child.done);
+                    const childRow = document.createElement('label');
+                    childRow.className = `grandchild-panel flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${childOverdue ? 'border-rose-200 bg-rose-50' : 'border-blue-100 bg-blue-50/40'}`;
+                    const childCheckbox = document.createElement('input');
+                    childCheckbox.type = 'checkbox';
+                    childCheckbox.checked = child.done;
+                    childCheckbox.className = 'mt-1 h-4 w-4 rounded border-slate-300 text-main focus:ring-main';
+                    childCheckbox.dataset.action = 'toggle-grandchild';
+                    childCheckbox.dataset.taskId = task.id;
+                    childCheckbox.dataset.subtaskId = subtask.id;
+                    childCheckbox.dataset.grandchildId = child.id;
+                    const childText = document.createElement('div');
+                    childText.className = 'min-w-0 flex-1';
+                    const childTitle = document.createElement('div');
+                    childTitle.className = `font-semibold ${child.done ? 'text-slate-400 line-through' : 'text-slate-700'}`;
+                    childTitle.textContent = child.title || '無題の孫タスク';
+                    if (child.title) childTitle.dataset.userContent = '';
+                    const childDue = document.createElement('div');
+                    childDue.className = `mt-1 text-xs font-semibold ${childOverdue ? 'text-overdue' : 'text-slate-400'}`;
+                    childDue.textContent = child.dueDate ? `期限: ${child.dueDate}${childOverdue ? '（期限超過）' : ''}` : '期限未設定';
+                    childText.append(childTitle, childDue);
+                    childRow.append(childCheckbox, childText);
+                    addReorderHandle(childRow, 'grandchild', child.id, task.id, subtask.id);
+                    childList.appendChild(childRow);
+                  });
+                  group.appendChild(childList);
+                }
+                addReorderHandle(group, 'subtask', subtask.id, task.id);
+                list.appendChild(group);
+              });
+              subArea.appendChild(list);
+            }
+            card.appendChild(subArea);
+          }
+
+          addReorderHandle(card, 'task', task.id);
+          el.taskList.appendChild(card);
+        });
+      }
+
+      function renderControls() {
+        el.sortSelect.value = ui.sortBy;
+        el.taskForm.classList.toggle('hidden', !ui.taskFormOpen);
+        el.toggleTaskFormButton.textContent = ui.taskFormOpen ? '追加フォームを閉じる' : '＋ メインタスク追加';
+      }
+
+      function renderModal() {
+        const task = state.tasks.find(item => item.id === ui.modalTaskId);
+        const open = Boolean(task);
+        el.modal.classList.toggle('hidden', !open);
+        el.modal.classList.toggle('flex', open);
+        el.modalContent.replaceChildren();
+        if (!open) return;
+
+        const summary = document.createElement('div');
+        summary.className = 'task-summary rounded-xl border border-slate-200 bg-slate-50 p-4';
+        const title = document.createElement('h3');
+        title.className = 'text-lg font-extrabold text-slate-900';
+        title.textContent = task.title || '無題のタスク';
+        if (task.title) title.dataset.userContent = '';
+        const details = document.createElement('p');
+        details.className = 'mt-2 text-sm text-slate-600';
+        details.dataset.i18nSource = `担当者: ${task.assignee || '未設定'} ／ 開始日: ${task.startDate || '未設定'} ／ 期限: ${task.dueDate || '未設定'} ／ 進捗: ${formatProgress(taskProgress(task))}`;
+        details.textContent = translateString(details.dataset.i18nSource);
+        summary.append(title, details);
+        appendNote(summary, task);
+        el.modalContent.appendChild(summary);
+
+        const headingRow = document.createElement('div');
+        headingRow.className = 'mt-6 flex flex-wrap items-center justify-between gap-3';
+        const heading = document.createElement('h3');
+        heading.className = 'text-lg font-extrabold text-slate-900';
+        heading.textContent = 'サブタスク';
+        const addButton = createButton(ui.subtaskFormOpen ? '追加を閉じる' : '＋ サブタスク追加', 'rounded-lg bg-main px-3 py-2 text-sm font-bold text-white hover:bg-blue-700', 'toggle-subtask-form', task.id);
+        headingRow.append(heading, addButton);
+        el.modalContent.appendChild(headingRow);
+
+        if (ui.subtaskFormOpen) {
+          const form = document.createElement('form');
+          form.id = 'subtaskForm';
+          form.className = 'mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-4';
+          form.dataset.taskId = task.id;
+
+          const grid = document.createElement('div');
+          grid.className = 'grid gap-4 sm:grid-cols-2';
+          const titleWrap = document.createElement('div');
+          const titleLabel = document.createElement('label');
+          titleLabel.className = 'mb-1 block text-sm font-semibold text-slate-700';
+          titleLabel.textContent = 'タイトル';
+          titleLabel.htmlFor = 'newSubtaskTitle';
+          const titleInput = document.createElement('input');
+          titleInput.id = 'newSubtaskTitle';
+          titleInput.name = 'title';
+          titleInput.required = true;
+          titleInput.className = 'focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2';
+          titleWrap.append(titleLabel, titleInput);
+
+          const dueWrap = document.createElement('div');
+          const dueLabel = document.createElement('label');
+          dueLabel.className = 'mb-1 block text-sm font-semibold text-slate-700';
+          dueLabel.textContent = '期限';
+          dueLabel.htmlFor = 'newSubtaskDueDate';
+          const dueInput = document.createElement('input');
+          dueInput.id = 'newSubtaskDueDate';
+          dueInput.name = 'dueDate';
+          dueInput.type = 'date';
+          dueInput.className = 'focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2';
+          dueWrap.append(dueLabel, dueInput);
+          grid.append(titleWrap, dueWrap);
+
+          const buttons = document.createElement('div');
+          buttons.className = 'mt-4 flex gap-2';
+          const submit = document.createElement('button');
+          submit.type = 'submit';
+          submit.className = 'focus-ring rounded-lg bg-main px-4 py-2 text-sm font-bold text-white hover:bg-blue-700';
+          submit.textContent = '追加する';
+          const cancel = createButton('キャンセル', 'rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50', 'cancel-subtask-form', task.id);
+          buttons.append(submit, cancel);
+          form.append(grid, buttons);
+          el.modalContent.appendChild(form);
+        }
+
+        const list = document.createElement('div');
+        list.className = 'mt-4 space-y-3';
+        if (!task.subtasks.length) {
+          const empty = document.createElement('p');
+          empty.className = 'rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500';
+          empty.textContent = 'サブタスクはありません。';
+          list.appendChild(empty);
+        } else {
+          task.subtasks.forEach(subtask => {
+            const progress = subtaskProgress(subtask);
+            const overdue = isOverdue(subtask.dueDate, progress < 100);
+            const row = document.createElement('div');
+            row.className = `subtask-panel rounded-xl border p-4 ${overdue ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-white'}`;
+
+            const inner = document.createElement('div');
+            inner.className = 'flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between';
+
+            const left = document.createElement('label');
+            left.className = `flex min-w-0 flex-1 items-start gap-3 ${subtask.children.length ? 'cursor-default' : 'cursor-pointer'}`;
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = progress >= 100;
+            checkbox.disabled = subtask.children.length > 0;
+            checkbox.className = 'mt-1 h-4 w-4 rounded border-slate-300 text-main focus:ring-main disabled:cursor-not-allowed disabled:opacity-50';
+            checkbox.dataset.action = 'toggle-subtask';
+            checkbox.dataset.taskId = task.id;
+            checkbox.dataset.subtaskId = subtask.id;
+
+            const textWrap = document.createElement('div');
+            const subTitle = document.createElement('div');
+            subTitle.className = `font-bold ${progress >= 100 ? 'text-slate-400 line-through' : 'text-slate-800'}`;
+            subTitle.textContent = subtask.title || '無題のサブタスク';
+            if (subtask.title) subTitle.dataset.userContent = '';
+            const due = document.createElement('div');
+            due.className = `mt-1 text-sm font-semibold ${overdue ? 'text-overdue' : 'text-slate-500'}`;
+            due.textContent = `${subtask.dueDate ? `期限: ${subtask.dueDate}${overdue ? '（期限超過）' : ''}` : '期限未設定'} ／ 進捗: ${formatProgress(progress)}`;
+            textWrap.append(subTitle, due);
+            left.append(checkbox, textWrap);
+
+            const actions = document.createElement('div');
+            actions.className = 'flex flex-wrap gap-2';
+            const addGrandchild = createButton(
+              ui.grandchildFormSubtaskId === subtask.id ? '追加を閉じる' : '＋ 孫タスク',
+              'rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-main hover:bg-blue-100',
+              ui.grandchildFormSubtaskId === subtask.id ? 'cancel-grandchild-form' : 'add-grandchild',
+              task.id,
+              { subtaskId: subtask.id }
+            );
+            const remove = createButton('削除', 'rounded-lg border border-rose-200 px-3 py-2 text-sm font-bold text-overdue hover:bg-rose-100', 'delete-subtask', task.id, { subtaskId: subtask.id });
+            actions.append(addGrandchild, remove);
+            inner.append(left, actions);
+            row.appendChild(inner);
+            appendNote(row, subtask);
+
+            if (ui.grandchildFormSubtaskId === subtask.id) {
+              const form = document.createElement('form');
+              form.className = 'grandchild-form mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3';
+              form.dataset.taskId = task.id;
+              form.dataset.subtaskId = subtask.id;
+
+              const formGrid = document.createElement('div');
+              formGrid.className = 'grid gap-3 sm:grid-cols-2';
+              const titleInput = document.createElement('input');
+              titleInput.name = 'title';
+              titleInput.required = true;
+              titleInput.placeholder = '孫タスクのタイトル';
+              titleInput.className = 'focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm';
+              const dueInput = document.createElement('input');
+              dueInput.name = 'dueDate';
+              dueInput.type = 'date';
+              dueInput.className = 'focus-ring w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm';
+              formGrid.append(titleInput, dueInput);
+
+              const formButtons = document.createElement('div');
+              formButtons.className = 'mt-3 flex gap-2';
+              const submit = document.createElement('button');
+              submit.type = 'submit';
+              submit.className = 'focus-ring rounded-lg bg-main px-3 py-2 text-sm font-bold text-white hover:bg-blue-700';
+              submit.textContent = '孫タスクを追加';
+              const cancel = createButton('キャンセル', 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50', 'cancel-grandchild-form', task.id, { subtaskId: subtask.id });
+              formButtons.append(submit, cancel);
+              form.append(formGrid, formButtons);
+              row.appendChild(form);
+            }
+
+            if (subtask.children.length) {
+              const childrenWrap = document.createElement('div');
+              childrenWrap.className = 'mt-4 ml-5 space-y-2 border-l-2 border-blue-100 pl-4';
+              subtask.children.forEach(child => {
+                const childOverdue = isOverdue(child.dueDate, !child.done);
+                const childRow = document.createElement('div');
+                childRow.className = `grandchild-panel flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between ${childOverdue ? 'border-rose-200 bg-rose-50' : 'border-blue-100 bg-blue-50/40'}`;
+
+                const childLeft = document.createElement('label');
+                childLeft.className = 'flex min-w-0 flex-1 cursor-pointer items-start gap-3';
+                const childCheckbox = document.createElement('input');
+                childCheckbox.type = 'checkbox';
+                childCheckbox.checked = child.done;
+                childCheckbox.className = 'mt-1 h-4 w-4 rounded border-slate-300 text-main focus:ring-main';
+                childCheckbox.dataset.action = 'toggle-grandchild';
+                childCheckbox.dataset.taskId = task.id;
+                childCheckbox.dataset.subtaskId = subtask.id;
+                childCheckbox.dataset.grandchildId = child.id;
+
+                const childText = document.createElement('div');
+                const childTitle = document.createElement('div');
+                childTitle.className = `font-semibold ${child.done ? 'text-slate-400 line-through' : 'text-slate-700'}`;
+                childTitle.textContent = child.title || '無題の孫タスク';
+                if (child.title) childTitle.dataset.userContent = '';
+                const childDue = document.createElement('div');
+                childDue.className = `mt-1 text-xs font-semibold ${childOverdue ? 'text-overdue' : 'text-slate-400'}`;
+                childDue.textContent = child.dueDate ? `期限: ${child.dueDate}${childOverdue ? '（期限超過）' : ''}` : '期限未設定';
+                childText.append(childTitle, childDue);
+                childLeft.append(childCheckbox, childText);
+
+                const childRemove = createButton('削除', 'rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-bold text-overdue hover:bg-rose-100', 'delete-grandchild', task.id, { subtaskId: subtask.id, grandchildId: child.id });
+                childRow.append(childLeft, childRemove);
+                appendNote(childRow, child);
+                addReorderHandle(childRow, 'grandchild', child.id, task.id, subtask.id);
+                childrenWrap.appendChild(childRow);
+              });
+              row.appendChild(childrenWrap);
+            }
+
+            addReorderHandle(row, 'subtask', subtask.id, task.id);
+            list.appendChild(row);
+          });
+        }
+        el.modalContent.appendChild(list);
+      }
+
+      function renderSettings() {
+        el.dualSaveToggle.checked = syncSettings.dualSaveEnabled;
+        el.syncDebounceSelect.value = String(syncSettings.syncDebounceMs);
+        el.syncFileName.textContent = syncSettings.fileName || '未設定';
+
+        const supported = Boolean(window.desktopAPI) || 'showSaveFilePicker' in window;
+        el.chooseSyncFileButton.disabled = !supported;
+        el.chooseSyncFileButton.classList.toggle('opacity-50', !supported);
+        el.chooseSyncFileButton.classList.toggle('cursor-not-allowed', !supported);
+
+        if (!supported) {
+          setSyncStatus('この環境は直接ファイル保存に未対応です', 'warn');
+        } else if (syncFileHandle) {
+          setSyncStatus(syncSettings.dualSaveEnabled ? '自動同期待機中' : '保存先設定済み');
+        } else if (syncSettings.fileName) {
+          setSyncStatus('保存先の再許可が必要な場合があります', 'warn');
+        } else {
+          setSyncStatus('未設定');
+        }
+      }
+
+      async function restoreSyncHandle() {
+        if (window.desktopAPI) {
+          const target = await window.desktopAPI.getSyncTarget();
+          syncFileHandle = target ? { native: true, name: target.name } : null;
+          if (target) {
+            syncSettings.fileName = target.name;
+            persistSyncSettings();
+          }
+          renderSettings();
+          return;
+        }
+        if (!('indexedDB' in window)) return;
+        syncFileHandle = await loadHandleFromDb();
+        if (syncFileHandle) {
+          syncSettings.fileName = syncFileHandle.name || syncSettings.fileName;
+          persistSyncSettings();
+        }
+        renderSettings();
+      }
+
+      function render() {
+        state.tasks.forEach(syncTaskStatus);
+        recordHistory();
+        persistBoard();
+        scheduleSyncSave();
+        renderHeader();
+        renderControls();
+        renderTasks();
+        renderModal();
+        applyLanguageToDom();
+      }
+
+      function commitEditor(input) {
+        if (!input || !input.dataset.editor) return;
+        if (input.dataset.editor === 'projectTitle') {
+          state.projectTitle = input.value.trim();
+        } else if (input.dataset.editor === 'taskField') {
+          const task = state.tasks.find(item => item.id === input.dataset.taskId);
+          const field = input.dataset.field;
+          if (task && ['title', 'assignee', 'startDate', 'dueDate'].includes(field)) {
+            const value = input.value.trim();
+            if ((field === 'startDate' || field === 'dueDate') && !isValidDateString(value)) return;
+            task[field] = value;
+          }
+        }
+        ui.editing = null;
+        render();
+      }
+
+      el.projectTitle.addEventListener('click', () => {
+        if (!ui.editing) {
+          ui.editing = { type: 'projectTitle' };
+          render();
+        }
+      });
+
+      el.projectTitle.addEventListener('keydown', event => {
+        const input = event.target.closest('[data-editor="projectTitle"]');
+        if (!input) return;
+        if (event.key === 'Enter') { event.preventDefault(); commitEditor(input); }
+        if (event.key === 'Escape') { ui.editing = null; render(); }
+      });
+      el.projectTitle.addEventListener('focusout', event => commitEditor(event.target.closest('[data-editor="projectTitle"]')));
+
+      el.sortSelect.addEventListener('change', event => {
+        ui.sortBy = event.target.value;
+        render();
+      });
+
+      function openSettings() {
+        renderSettings();
+        el.settingsModal.classList.remove('hidden');
+        el.settingsModal.classList.add('flex');
+        applyLanguageToDom();
+      }
+
+      el.settingsButton.addEventListener('click', openSettings);
+      document.getElementById('sidebarSettingsButton').addEventListener('click', openSettings);
+
+      el.closeSettingsButton.addEventListener('click', () => {
+        el.settingsModal.classList.add('hidden');
+        el.settingsModal.classList.remove('flex');
+      });
+
+      el.settingsModal.addEventListener('click', event => {
+        if (event.target === el.settingsModal) {
+          el.settingsModal.classList.add('hidden');
+          el.settingsModal.classList.remove('flex');
+        }
+      });
+
+      el.dualSaveToggle.addEventListener('change', async event => {
+        syncSettings.dualSaveEnabled = event.target.checked;
+        persistSyncSettings();
+        renderSettings();
+        if (syncSettings.dualSaveEnabled && syncFileHandle) {
+          await writeSyncFile({ requestPermission: true });
+        }
+      });
+
+      el.syncDebounceSelect.addEventListener('change', event => {
+        syncSettings.syncDebounceMs = Number(event.target.value) || 1000;
+        persistSyncSettings();
+        renderSettings();
+      });
+
+      el.chooseSyncFileButton.addEventListener('click', async () => {
+        if (window.desktopAPI) {
+          try {
+            const target = await window.desktopAPI.chooseSyncFile(currentLanguage);
+            if (!target) return;
+            syncFileHandle = { native: true, name: target.name };
+            syncSettings.fileName = target.name;
+            syncSettings.dualSaveEnabled = true;
+            persistSyncSettings();
+            renderSettings();
+            await writeSyncFile();
+          } catch (error) {
+            console.error(error);
+            setSyncStatus('保存先の設定に失敗しました', 'error');
+          }
+          return;
+        }
+        if (!('showSaveFilePicker' in window)) {
+          window.alert('この環境では任意ファイルへの直接保存が利用できません。');
+          return;
+        }
+
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: 'task-progress-board.json',
+            types: [{
+              description: 'JSON',
+              accept: { 'application/json': ['.json'] }
+            }]
+          });
+
+          syncFileHandle = handle;
+          syncSettings.fileName = handle.name || 'task-progress-board.json';
+          syncSettings.dualSaveEnabled = true;
+          persistSyncSettings();
+          await saveHandleToDb(handle);
+          renderSettings();
+          await writeSyncFile({ requestPermission: true });
+        } catch (error) {
+          if (error && error.name !== 'AbortError') {
+            console.error(error);
+            setSyncStatus('保存先の設定に失敗しました', 'error');
+          }
+        }
+      });
+
+      el.saveSyncFileNowButton.addEventListener('click', async () => {
+        const ok = await writeSyncFile({ requestPermission: true });
+        if (!ok && !syncFileHandle) window.alert('先にJSON保存先を選択してください。');
+      });
+
+      el.clearSyncFileButton.addEventListener('click', async () => {
+        if (!window.confirm('JSONの同期保存先設定を解除しますか？ JSONファイル自体は削除されません。')) return;
+        syncFileHandle = null;
+        syncSettings.fileName = '';
+        syncSettings.dualSaveEnabled = false;
+        persistSyncSettings();
+        if (window.desktopAPI) await window.desktopAPI.clearSyncFile();
+        else await clearHandleFromDb();
+        renderSettings();
+      });
+
+      el.exportJsonButton.addEventListener('click', async () => {
+        if (window.desktopAPI) {
+          try {
+            await window.desktopAPI.exportJson(serializedState(), `task-progress-board-${todayString()}.json`, currentLanguage);
+          } catch (error) {
+            console.error(error);
+            window.alert('JSONの書き出しに失敗しました。');
+          }
+          return;
+        }
+        const blob = new Blob([serializedState()], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `task-progress-board-${todayString()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      async function restoreFromJsonText(text) {
+        const parsed = JSON.parse(text);
+        const candidate = parsed && parsed.data ? parsed.data : parsed;
+        const normalized = normalizeState(candidate);
+        if (!window.confirm('現在のタスクデータを、このJSONの内容で置き換えますか？')) return false;
+        state = normalized;
+        persistBoard();
+        scheduleSyncSave();
+        render();
+        window.alert('JSONから復元しました。');
+        return true;
+      }
+
+      el.importJsonButton.addEventListener('click', async () => {
+        if (window.desktopAPI) {
+          try {
+            const text = await window.desktopAPI.importJson(currentLanguage);
+            if (text !== null) await restoreFromJsonText(text);
+          } catch (error) {
+            console.error(error);
+            window.alert('JSONの読み込みに失敗しました。');
+          }
+          return;
+        }
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,application/json';
+        input.addEventListener('change', async () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+          try {
+            await restoreFromJsonText(await file.text());
+          } catch (error) {
+            console.error(error);
+            window.alert('JSONの読み込みに失敗しました。');
+          }
+        });
+        input.click();
+      });
+
+      el.saveButton.addEventListener('click', () => saveState(true));
+      el.toggleTaskFormButton.addEventListener('click', () => { ui.taskFormOpen = !ui.taskFormOpen; render(); });
+      el.cancelTaskFormButton.addEventListener('click', () => { ui.taskFormOpen = false; el.taskForm.reset(); render(); });
+
+      el.taskForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const form = new FormData(el.taskForm);
+        const title = String(form.get('title') || '').trim();
+        if (!title) return;
+        const task = {
+          id: nextTaskId(),
+          title,
+          assignee: String(form.get('assignee') || '').trim(),
+          startDate: String(form.get('startDate') || ''),
+          dueDate: String(form.get('dueDate') || ''),
+          status: 'not_started',
+          createdOrder: nextCreatedOrder(),
+          subtasks: []
+        };
+        state.tasks.push(task);
+        ui.taskFormOpen = false;
+        el.taskForm.reset();
+        render();
+      });
+
+      el.taskList.addEventListener('click', event => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const task = state.tasks.find(item => item.id === button.dataset.taskId);
+        if (!task) return;
+        const action = button.dataset.action;
+
+        if (action === 'duplicate-task') {
+          duplicateTask(task);
+        } else if (action === 'edit-field') {
+          ui.editing = { type: 'taskField', taskId: task.id, field: button.dataset.field };
+        } else if (action === 'start-task') {
+          task.status = 'in_progress';
+        } else if (action === 'open-detail') {
+          ui.modalTaskId = task.id;
+          ui.subtaskFormOpen = false;
+          ui.grandchildFormSubtaskId = null;
+        } else if (action === 'delete-task') {
+          if (window.confirm(`「${task.title || '無題のタスク'}」を削除しますか？`)) {
+            state.tasks = state.tasks.filter(item => item.id !== task.id);
+            ui.expandedTaskIds.delete(task.id);
+          }
+        } else if (action === 'toggle-accordion') {
+          if (ui.expandedTaskIds.has(task.id)) ui.expandedTaskIds.delete(task.id);
+          else ui.expandedTaskIds.add(task.id);
+        }
+        render();
+      });
+
+      el.taskList.addEventListener('change', event => {
+        const checkbox = event.target.closest('input[data-action]');
+        if (!checkbox) return;
+        const task = state.tasks.find(item => item.id === checkbox.dataset.taskId);
+        const subtask = task && task.subtasks.find(item => item.id === checkbox.dataset.subtaskId);
+        if (!task || !subtask) return;
+
+        if (checkbox.dataset.action === 'toggle-subtask' && !subtask.children.length) {
+          subtask.done = checkbox.checked;
+        } else if (checkbox.dataset.action === 'toggle-grandchild') {
+          const child = subtask.children.find(item => item.id === checkbox.dataset.grandchildId);
+          if (!child) return;
+          child.done = checkbox.checked;
+          syncSubtaskStatus(subtask);
+        } else {
+          return;
+        }
+
+        syncTaskStatus(task);
+        render();
+      });
+
+      el.taskList.addEventListener('keydown', event => {
+        const input = event.target.closest('[data-editor="taskField"]');
+        if (!input) return;
+        if (event.key === 'Enter') { event.preventDefault(); commitEditor(input); }
+        if (event.key === 'Escape') { ui.editing = null; render(); }
+      });
+      el.taskList.addEventListener('focusout', event => commitEditor(event.target.closest('[data-editor="taskField"]')));
+
+      el.closeModalButton.addEventListener('click', () => { ui.modalTaskId = null; ui.subtaskFormOpen = false; ui.grandchildFormSubtaskId = null; render(); });
+      el.modal.addEventListener('click', event => {
+        if (event.target === el.modal) { ui.modalTaskId = null; ui.subtaskFormOpen = false; ui.grandchildFormSubtaskId = null; render(); }
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && ui.modalTaskId) { ui.modalTaskId = null; ui.subtaskFormOpen = false; ui.grandchildFormSubtaskId = null; render(); }
+      });
+
+      el.modalContent.addEventListener('click', event => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const task = state.tasks.find(item => item.id === button.dataset.taskId);
+        if (!task) return;
+        if (button.dataset.action === 'toggle-subtask-form') {
+          ui.subtaskFormOpen = !ui.subtaskFormOpen;
+          ui.grandchildFormSubtaskId = null;
+        } else if (button.dataset.action === 'cancel-subtask-form') {
+          ui.subtaskFormOpen = false;
+        } else if (button.dataset.action === 'add-grandchild') {
+          ui.grandchildFormSubtaskId = button.dataset.subtaskId;
+          ui.subtaskFormOpen = false;
+        } else if (button.dataset.action === 'cancel-grandchild-form') {
+          ui.grandchildFormSubtaskId = null;
+        } else if (button.dataset.action === 'delete-grandchild') {
+          const subtask = task.subtasks.find(item => item.id === button.dataset.subtaskId);
+          const child = subtask && subtask.children.find(item => item.id === button.dataset.grandchildId);
+          if (subtask && child && window.confirm(`「${child.title || '無題の孫タスク'}」を削除しますか？`)) {
+            subtask.children = subtask.children.filter(item => item.id !== child.id);
+            syncSubtaskStatus(subtask);
+            syncTaskStatus(task);
+          }
+        } else if (button.dataset.action === 'delete-subtask') {
+          const subtask = task.subtasks.find(item => item.id === button.dataset.subtaskId);
+          if (subtask && window.confirm(`「${subtask.title || '無題のサブタスク'}」を削除しますか？`)) {
+            task.subtasks = task.subtasks.filter(item => item.id !== subtask.id);
+            if (ui.grandchildFormSubtaskId === subtask.id) ui.grandchildFormSubtaskId = null;
+            syncTaskStatus(task);
+          }
+        }
+        render();
+      });
+
+      el.modalContent.addEventListener('change', event => {
+        const checkbox = event.target.closest('input[data-action]');
+        if (!checkbox) return;
+        const task = state.tasks.find(item => item.id === checkbox.dataset.taskId);
+        const subtask = task && task.subtasks.find(item => item.id === checkbox.dataset.subtaskId);
+        if (!task || !subtask) return;
+
+        if (checkbox.dataset.action === 'toggle-subtask' && !subtask.children.length) {
+          subtask.done = checkbox.checked;
+        } else if (checkbox.dataset.action === 'toggle-grandchild') {
+          const child = subtask.children.find(item => item.id === checkbox.dataset.grandchildId);
+          if (!child) return;
+          child.done = checkbox.checked;
+          syncSubtaskStatus(subtask);
+        } else {
+          return;
+        }
+
+        syncTaskStatus(task);
+        render();
+      });
+
+      el.modalContent.addEventListener('submit', event => {
+        const grandchildForm = event.target.closest('.grandchild-form');
+        if (grandchildForm) {
+          event.preventDefault();
+          const task = state.tasks.find(item => item.id === grandchildForm.dataset.taskId);
+          const subtask = task && task.subtasks.find(item => item.id === grandchildForm.dataset.subtaskId);
+          if (!task || !subtask) return;
+          const data = new FormData(grandchildForm);
+          const title = String(data.get('title') || '').trim();
+          const dueDate = String(data.get('dueDate') || '');
+          if (!title || !isValidDateString(dueDate)) return;
+          subtask.children.push({ id: nextGrandchildId(task, subtask), title, dueDate, done: false });
+          subtask.done = false;
+          if (task.status === 'completed') task.status = 'in_progress';
+          ui.grandchildFormSubtaskId = null;
+          syncTaskStatus(task);
+          render();
+          return;
+        }
+
+        const form = event.target.closest('#subtaskForm');
+        if (!form) return;
+        event.preventDefault();
+        const task = state.tasks.find(item => item.id === form.dataset.taskId);
+        if (!task) return;
+        const data = new FormData(form);
+        const title = String(data.get('title') || '').trim();
+        const dueDate = String(data.get('dueDate') || '');
+        if (!title || !isValidDateString(dueDate)) return;
+        task.subtasks.push({ id: nextSubtaskId(task), title, dueDate, done: false, children: [] });
+        if (task.status === 'completed') task.status = 'in_progress';
+        ui.subtaskFormOpen = false;
+        render();
+      });
+
+      render();
+      restoreSyncHandle();
+    })();
+  </script>
+</body>
+</html>

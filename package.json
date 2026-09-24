@@ -1,0 +1,46 @@
+{
+  "name": "task-progress-board",
+  "version": "1.0.0",
+  "description": "macOS desktop task progress board",
+  "main": "desktop/main.cjs",
+  "private": true,
+  "scripts": {
+    "css": "tailwindcss -c tailwind.config.cjs -i styles/input.css -o app.css --minify",
+    "start": "pnpm run css && electron .",
+    "test": "node tests/reorder.cjs && node tests/gauge-color.cjs && node tests/productivity.cjs && node tests/desktop.cjs",
+    "build:mac": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64",
+    "build:dir": "pnpm run css && electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
+    "tailwindcss": "3.4.17"
+  },
+  "build": {
+    "appId": "jp.hideyuki.taskprogressboard",
+    "productName": "Task Progress Board",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "タスク管理ツール.html",
+      "app.css",
+      "desktop/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] },
+        { "target": "zip", "arch": ["arm64", "x64"] }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+    }
+  },
+  "packageManager": "pnpm@11.19.0"
+}
