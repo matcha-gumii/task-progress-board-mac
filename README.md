@@ -1,5 +1,7 @@
 # Task Progress Board
 
+[English](README.en.md) | 日本語
+
 光沢感のあるMac風UIで、親タスク・子タスク・孫タスクを管理できるmacOS向けデスクトップアプリです。
 
 ## 主な機能
