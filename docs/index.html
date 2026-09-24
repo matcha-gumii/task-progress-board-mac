@@ -81,9 +81,11 @@
     .feature h3 { margin:0 0 9px; font-size:17px; }
     .feature p { margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
     .guide { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
-    .guide-card { padding:28px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.5); box-shadow:inset 0 1px 0 #fff; }
+    .guide-card { display:flex; flex-direction:column; padding:28px; color:inherit; text-decoration:none; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.5); box-shadow:inset 0 1px 0 #fff; transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+    .guide-card:hover { transform:translateY(-2px); background:rgba(255,255,255,.68); box-shadow:0 14px 28px rgba(53,61,71,.12),inset 0 1px 0 #fff; }
     .guide-card strong { display:block; margin-bottom:8px; font-size:18px; }
-    .guide-card p { margin:0; color:var(--muted); line-height:1.7; }
+    .guide-card p { flex:1; margin:0; color:var(--muted); line-height:1.7; }
+    .guide-link { display:inline-block; margin-top:20px; color:#303741; font-size:13px; font-weight:800; }
     .notice { margin-top:18px; padding:18px 20px; border:1px solid rgba(129,105,77,.2); border-radius:15px; background:rgba(255,246,228,.54); color:#655640; font-size:13px; line-height:1.7; }
     .license { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:28px; border:1px solid rgba(255,255,255,.86); border-radius:19px; background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(217,221,226,.5)); box-shadow:inset 0 1px 0 #fff; }
     .license p { max-width:720px; margin:8px 0 0; color:var(--muted); line-height:1.7; }
@@ -179,9 +181,9 @@
       <section class="section" id="download-help">
         <div class="section-head"><h2 data-ja="どれを選べばいい？" data-en="Which version should I choose?">どれを選べばいい？</h2><p data-ja="Macはメニューの「このMacについて」でチップを確認できます。Windows 10／11の一般的な64bit PCはWindows版を選んでください。" data-en="On a Mac, open About This Mac from the Apple menu and check the Chip field. On a typical 64-bit Windows 10 or 11 PC, choose Windows.">Macはメニューの「このMacについて」でチップを確認できます。Windows 10／11の一般的な64bit PCはWindows版を選んでください。</p></div>
         <div class="guide">
-          <div class="guide-card"><strong>Apple Silicon</strong><p data-ja="「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows Apple M1, M2, M3, M4, or a later Apple chip.">「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。</p></div>
-          <div class="guide-card"><strong>Intel Mac</strong><p data-ja="「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows an Intel Core processor.">「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。</p></div>
-          <div class="guide-card"><strong>Windows x64</strong><p data-ja="Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。" data-en="Choose this version for a typical 64-bit Intel or AMD PC running Windows 10 or 11.">Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。</p></div>
+          <a class="guide-card" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-mac-arm64.dmg"><strong>Apple Silicon</strong><p data-ja="「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows Apple M1, M2, M3, M4, or a later Apple chip.">「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。</p><span class="guide-link" data-ja="ダウンロード ↓" data-en="Download ↓">ダウンロード ↓</span></a>
+          <a class="guide-card" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-mac-x64.dmg"><strong>Intel Mac</strong><p data-ja="「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows an Intel Core processor.">「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。</p><span class="guide-link" data-ja="ダウンロード ↓" data-en="Download ↓">ダウンロード ↓</span></a>
+          <a class="guide-card" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-windows-x64.exe"><strong>Windows x64</strong><p data-ja="Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。" data-en="Choose this version for a typical 64-bit Intel or AMD PC running Windows 10 or 11.">Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。</p><span class="guide-link" data-ja="ダウンロード ↓" data-en="Download ↓">ダウンロード ↓</span></a>
         </div>
         <div class="notice" data-ja="現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。" data-en="This release is not signed with an Apple Developer ID. If macOS shows a warning on first launch, Control-click the app in Finder and choose Open.">現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。</div>
         <div class="notice" data-ja="Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。" data-en="The Windows build is also unsigned. If Microsoft Defender SmartScreen shows a warning, verify the publisher and download source before running the installer.">Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。</div>
