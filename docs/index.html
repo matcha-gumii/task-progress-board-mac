@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Progress Board — macOS Download</title>
+  <meta name="description" content="親・子・孫タスクを整理できる、光沢感のあるmacOS向けタスク管理アプリ。">
+  <meta name="theme-color" content="#d8dbe0">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink:#1e232b; --muted:#626b77; --line:rgba(255,255,255,.82);
+      --dark:#303741; --panel:rgba(255,255,255,.53); --shadow:rgba(49,58,69,.2);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0; min-width:320px; color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 14% 2%,rgba(255,255,255,.98),transparent 34%),
+        radial-gradient(circle at 88% 18%,rgba(181,188,198,.5),transparent 37%),
+        linear-gradient(140deg,#eef0f3 0%,#c6cbd2 48%,#9ea6b0 100%);
+      min-height:100vh;
+    }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.18; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); }
+    a { color:inherit; }
+    .shell { width:min(1180px,calc(100% - 32px)); margin:22px auto; border:1px solid var(--line); border-radius:28px; background:rgba(242,244,247,.62); box-shadow:0 32px 90px rgba(29,35,43,.25),inset 0 1px 0 #fff; backdrop-filter:blur(28px) saturate(125%); overflow:hidden; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:19px 24px; border-bottom:1px solid rgba(112,122,134,.18); }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:750; letter-spacing:-.02em; }
+    .app-icon { width:36px; height:36px; display:grid; place-items:center; color:#fff; border-radius:11px; background:linear-gradient(145deg,#707885,#222831); border:1px solid rgba(255,255,255,.65); box-shadow:0 8px 18px rgba(23,29,36,.25),inset 0 1px 1px rgba(255,255,255,.5); }
+    .app-icon svg { width:17px; }
+    .nav-actions { display:flex; align-items:center; gap:8px; }
+    .lang { display:flex; padding:3px; border:1px solid rgba(79,88,99,.16); background:rgba(255,255,255,.46); border-radius:10px; }
+    .lang button { border:0; padding:7px 10px; color:var(--muted); background:transparent; border-radius:7px; font:700 12px/1 inherit; cursor:pointer; }
+    .lang button[aria-pressed="true"] { color:#20252c; background:#fff; box-shadow:0 2px 8px rgba(45,53,63,.13); }
+    .github { text-decoration:none; font-size:13px; font-weight:700; padding:9px 13px; border-radius:10px; background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.8); }
+    .hero { display:grid; grid-template-columns:1.03fr .97fr; align-items:center; gap:54px; padding:74px 56px 66px; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:7px 11px; border:1px solid rgba(255,255,255,.9); border-radius:999px; background:rgba(255,255,255,.43); color:#515a66; font-size:12px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; box-shadow:inset 0 1px 0 #fff; }
+    .eyebrow::before { content:""; width:7px; height:7px; border-radius:50%; background:#5f6976; box-shadow:0 0 0 4px rgba(95,105,118,.12); }
+    h1 { max-width:680px; margin:0; font-size:clamp(43px,6vw,72px); line-height:.98; letter-spacing:-.057em; }
+    .lead { max-width:590px; margin:24px 0 0; color:#555f6b; font-size:17px; line-height:1.85; }
+    .downloads { display:flex; flex-wrap:wrap; gap:11px; margin-top:31px; }
+    .download { min-width:190px; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 17px; border-radius:13px; font-weight:760; font-size:14px; border:1px solid rgba(255,255,255,.8); box-shadow:0 11px 25px rgba(38,45,54,.16),inset 0 1px 0 rgba(255,255,255,.55); transition:transform .18s ease,box-shadow .18s ease; }
+    .download:hover { transform:translateY(-2px); box-shadow:0 16px 30px rgba(38,45,54,.22),inset 0 1px 0 rgba(255,255,255,.55); }
+    .download.primary { color:#fff; background:linear-gradient(180deg,#596270,#303741); }
+    .download.secondary { background:rgba(255,255,255,.64); }
+    .download small { display:block; margin-top:2px; opacity:.68; font-size:10px; font-weight:650; }
+    .apple { font-size:22px; }
+    .meta { margin-top:14px; color:#717a86; font-size:12px; }
+    .preview { position:relative; min-height:430px; display:grid; place-items:center; }
+    .glow { position:absolute; width:74%; aspect-ratio:1; border-radius:50%; background:rgba(255,255,255,.74); filter:blur(42px); }
+    .window { position:relative; width:min(100%,520px); border:1px solid rgba(255,255,255,.92); border-radius:23px; overflow:hidden; background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(195,201,209,.67)); box-shadow:0 34px 65px rgba(42,49,59,.25),inset 0 1px 0 #fff; transform:perspective(1000px) rotateY(-4deg) rotateX(2deg); }
+    .window-bar { height:48px; display:flex; align-items:center; padding:0 17px; border-bottom:1px solid rgba(88,98,111,.14); }
+    .window-name { margin:auto; font-size:11px; font-weight:750; color:#707987; letter-spacing:.08em; }
+    .window-body { display:grid; grid-template-columns:100px 1fr; min-height:322px; }
+    .side { padding:20px 11px; border-right:1px solid rgba(92,102,113,.13); background:rgba(227,230,234,.42); }
+    .side-logo { width:30px; height:30px; margin:0 0 28px 8px; border-radius:9px; background:linear-gradient(145deg,#777f8b,#343a43); box-shadow:inset 0 1px 1px rgba(255,255,255,.45); }
+    .side-row { height:28px; margin:7px 0; border-radius:8px; background:rgba(255,255,255,.7); }
+    .side-row.short { width:72%; background:rgba(121,130,141,.13); }
+    .board { padding:24px; }
+    .board-title { width:42%; height:17px; margin-bottom:24px; border-radius:6px; background:#3b424c; }
+    .progress { height:58px; padding:13px; border:1px solid rgba(255,255,255,.8); border-radius:13px; background:rgba(255,255,255,.45); box-shadow:inset 0 1px 0 #fff; }
+    .progress-label { width:29%; height:7px; border-radius:4px; background:#78818d; }
+    .bar { height:4px; margin-top:12px; overflow:hidden; border-radius:5px; background:#c6cbd1; }
+    .bar::after { content:""; display:block; width:64%; height:100%; background:#626d7a; }
+    .card { margin-top:15px; padding:16px; border:1px solid rgba(255,255,255,.83); border-radius:14px; background:rgba(255,255,255,.56); box-shadow:0 10px 24px rgba(53,61,71,.09),inset 0 1px 0 #fff; }
+    .card-top { display:flex; gap:7px; }
+    .pill { width:53px; height:14px; border-radius:8px; background:#d9dde1; }
+    .pill.warm { width:40px; background:#e4d8d8; }
+    .card-title { width:57%; height:10px; margin:15px 0 18px; border-radius:4px; background:#4d5661; }
+    .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }
+    .card-line { height:7px; border-radius:5px; background:#aeb5bd; }
+    .section { padding:68px 56px; border-top:1px solid rgba(103,113,124,.16); }
+    .section-head { display:flex; justify-content:space-between; gap:30px; align-items:end; margin-bottom:28px; }
+    h2 { margin:0; font-size:clamp(30px,4vw,46px); letter-spacing:-.045em; }
+    .section-head p { max-width:480px; margin:0; color:var(--muted); line-height:1.7; }
+    .features { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .feature { min-height:190px; padding:24px; border:1px solid var(--line); border-radius:18px; background:var(--panel); box-shadow:0 14px 28px rgba(53,61,71,.1),inset 0 1px 0 #fff; }
+    .feature-icon { width:36px; height:36px; display:grid; place-items:center; margin-bottom:28px; border-radius:10px; color:#fff; background:linear-gradient(145deg,#737d89,#353c46); box-shadow:0 8px 15px rgba(38,45,54,.18); }
+    .feature h3 { margin:0 0 9px; font-size:17px; }
+    .feature p { margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
+    .guide { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .guide-card { padding:28px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.5); box-shadow:inset 0 1px 0 #fff; }
+    .guide-card strong { display:block; margin-bottom:8px; font-size:18px; }
+    .guide-card p { margin:0; color:var(--muted); line-height:1.7; }
+    .notice { margin-top:18px; padding:18px 20px; border:1px solid rgba(129,105,77,.2); border-radius:15px; background:rgba(255,246,228,.54); color:#655640; font-size:13px; line-height:1.7; }
+    .license { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:28px; border:1px solid rgba(255,255,255,.86); border-radius:19px; background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(217,221,226,.5)); box-shadow:inset 0 1px 0 #fff; }
+    .license p { max-width:720px; margin:8px 0 0; color:var(--muted); line-height:1.7; }
+    .license a { flex:0 0 auto; padding:11px 15px; border-radius:11px; background:#39414b; color:#fff; text-decoration:none; font-size:13px; font-weight:750; }
+    footer { display:flex; justify-content:space-between; gap:18px; padding:24px 56px; border-top:1px solid rgba(103,113,124,.16); color:#6e7783; font-size:12px; }
+    footer a { text-decoration:none; font-weight:700; }
+    :focus-visible { outline:3px solid rgba(55,100,160,.48); outline-offset:3px; }
+    @media (max-width:840px) {
+      .hero { grid-template-columns:1fr; padding:56px 28px; }
+      .preview { min-height:360px; }
+      .features { grid-template-columns:1fr; }
+      .section { padding:54px 28px; }
+      .section-head { align-items:start; flex-direction:column; }
+    }
+    @media (max-width:560px) {
+      .shell { width:calc(100% - 16px); margin:8px auto; border-radius:21px; }
+      .nav { padding:14px; }
+      .brand span { display:none; }
+      .github { display:none; }
+      .hero { padding:45px 20px; gap:28px; }
+      h1 { font-size:43px; }
+      .download { width:100%; }
+      .preview { min-height:290px; }
+      .window { transform:none; }
+      .window-body { grid-template-columns:72px 1fr; min-height:260px; }
+      .board { padding:16px; }
+      .side { padding:14px 8px; }
+      .section { padding:46px 20px; }
+      .guide { grid-template-columns:1fr; }
+      .license { align-items:flex-start; flex-direction:column; }
+      footer { padding:22px 20px; flex-direction:column; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .download { transition:none; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav" aria-label="Main navigation">
+      <div class="brand">
+        <span class="app-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 5h6v6H5V5Zm8 0h6v6h-6V5ZM5 13h6v6H5v-6Zm8 0h6v6h-6v-6Z" fill="currentColor"/></svg></span>
+        <span>Task Progress Board</span>
+      </div>
+      <div class="nav-actions">
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="ja" aria-pressed="true">日本語</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <a class="github" href="https://github.com/matcha-gumii/task-progress-board-mac">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow" data-ja="macOS用デスクトップアプリ" data-en="Desktop app for macOS">macOS用デスクトップアプリ</div>
+          <h1 data-ja="タスクを、静かに前へ。" data-en="Move every task forward.">タスクを、静かに前へ。</h1>
+          <p class="lead" data-ja="親タスクから孫タスクまで、進捗をひとつの画面で整理。光沢感のある落ち着いたデザインで、毎日の作業に集中できます。" data-en="Organize main tasks, subtasks, and nested tasks in one place. A calm, polished interface keeps your attention on the work ahead.">親タスクから孫タスクまで、進捗をひとつの画面で整理。光沢感のある落ち着いたデザインで、毎日の作業に集中できます。</p>
+          <div class="downloads">
+            <a class="download primary" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-mac-arm64.dmg">
+              <span class="apple">●</span><span><span data-ja="Apple Silicon版" data-en="Apple Silicon">Apple Silicon版</span><small>M1 / M2 / M3 / M4</small></span>
+            </a>
+            <a class="download secondary" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/latest/download/Task-Progress-Board-1.0.0-mac-x64.dmg">
+              <span class="apple">●</span><span><span data-ja="Intel Mac版" data-en="Intel Mac">Intel Mac版</span><small>Intel processor</small></span>
+            </a>
+          </div>
+          <p class="meta" data-ja="Version 1.0.0 ・ macOS ・ 個人／非商用利用" data-en="Version 1.0.0 · macOS · Personal, non-commercial use">Version 1.0.0 ・ macOS ・ 個人／非商用利用</p>
+        </div>
+
+        <div class="preview" aria-label="Application preview">
+          <div class="glow"></div>
+          <div class="window" aria-hidden="true">
+            <div class="window-bar"><span class="window-name">TASK PROGRESS BOARD</span></div>
+            <div class="window-body">
+              <aside class="side"><div class="side-logo"></div><div class="side-row"></div><div class="side-row short"></div></aside>
+              <div class="board"><div class="board-title"></div><div class="progress"><div class="progress-label"></div><div class="bar"></div></div><div class="card"><div class="card-top"><span class="pill"></span><span class="pill warm"></span></div><div class="card-title"></div><div class="card-grid"><span class="card-line"></span><span class="card-line"></span><span class="card-line"></span></div></div><div class="card"><div class="card-top"><span class="pill"></span></div><div class="card-title"></div><div class="card-grid"><span class="card-line"></span><span class="card-line"></span><span class="card-line"></span></div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-head"><h2 data-ja="必要な機能を、すっきり。" data-en="Everything you need. Nothing in the way.">必要な機能を、すっきり。</h2><p data-ja="複雑な設定を覚えなくても、タスクを追加したその日から使い始められます。" data-en="Start organizing the moment you add your first task, without learning a complex system.">複雑な設定を覚えなくても、タスクを追加したその日から使い始められます。</p></div>
+        <div class="features">
+          <article class="feature"><div class="feature-icon">↕</div><h3 data-ja="3階層をドラッグ整理" data-en="Drag across three levels">3階層をドラッグ整理</h3><p data-ja="親・子・孫タスクを階層ごとに並べ替え。カードが手についてくる自然な操作感です。" data-en="Reorder main tasks, subtasks, and nested tasks with a direct, natural drag interaction.">親・子・孫タスクを階層ごとに並べ替え。カードが手についてくる自然な操作感です。</p></article>
+          <article class="feature"><div class="feature-icon">◐</div><h3 data-ja="色と文字を自分向けに" data-en="Make it yours">色と文字を自分向けに</h3><p data-ja="4つのテーマ、進捗ゲージの色、3段階の文字サイズを設定できます。" data-en="Choose from four themes, custom progress colors, and three text sizes.">4つのテーマ、進捗ゲージの色、3段階の文字サイズを設定できます。</p></article>
+          <article class="feature"><div class="feature-icon">文</div><h3 data-ja="日本語と英語に対応" data-en="Japanese and English">日本語と英語に対応</h3><p data-ja="操作画面はいつでも切り替え可能。入力したタスク内容はそのまま保持されます。" data-en="Switch the interface at any time while keeping your task content unchanged.">操作画面はいつでも切り替え可能。入力したタスク内容はそのまま保持されます。</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="download-help">
+        <div class="section-head"><h2 data-ja="どちらを選べばいい？" data-en="Which version should I choose?">どちらを選べばいい？</h2><p data-ja="メニューの「このMacについて」を開き、「チップ」または「プロセッサ」を確認してください。" data-en="Open About This Mac from the Apple menu and check the Chip or Processor field.">メニューの「このMacについて」を開き、「チップ」または「プロセッサ」を確認してください。</p></div>
+        <div class="guide">
+          <div class="guide-card"><strong>Apple Silicon</strong><p data-ja="「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows Apple M1, M2, M3, M4, or a later Apple chip.">「Apple M1」「M2」「M3」「M4」などと表示されるMacはこちらです。</p></div>
+          <div class="guide-card"><strong>Intel Mac</strong><p data-ja="「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows an Intel Core processor.">「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。</p></div>
+        </div>
+        <div class="notice" data-ja="現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。" data-en="This release is not signed with an Apple Developer ID. If macOS shows a warning on first launch, Control-click the app in Finder and choose Open.">現在の配布版はApple Developer IDで署名されていません。初回起動時にmacOSの警告が表示された場合は、FinderでアプリをControlキーを押しながらクリックし、「開く」を選択してください。</div>
+      </section>
+
+      <section class="section" id="license">
+        <div class="license"><div><h2 data-ja="個人利用は無料です。" data-en="Free for personal use.">個人利用は無料です。</h2><p data-ja="公式アプリは個人・非商用目的で利用できます。ソースコードの利用・複製・改変・再配布・商用利用と、アプリ本体の再配布には事前の書面許可が必要です。" data-en="Official builds may be used for personal, non-commercial purposes. Source use, copying, modification, redistribution, commercial use, and redistribution of the app require prior written permission.">公式アプリは個人・非商用目的で利用できます。ソースコードの利用・複製・改変・再配布・商用利用と、アプリ本体の再配布には事前の書面許可が必要です。</p></div><a href="https://github.com/matcha-gumii/task-progress-board-mac/blob/main/LICENSE" data-ja="ライセンスを読む" data-en="Read the license">ライセンスを読む</a></div>
+      </section>
+    </main>
+
+    <footer><span>© 2026 matcha-gumii. All rights reserved.</span><a href="https://github.com/matcha-gumii/task-progress-board-mac" data-ja="ソースを見る ↗" data-en="View source ↗">ソースを見る ↗</a></footer>
+  </div>
+  <script>
+    (() => {
+      const buttons = document.querySelectorAll('[data-lang]');
+      const nodes = document.querySelectorAll('[data-ja][data-en]');
+      function applyLanguage(lang) {
+        const selected = lang === 'en' ? 'en' : 'ja';
+        document.documentElement.lang = selected;
+        nodes.forEach(node => { node.textContent = node.dataset[selected]; });
+        buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.lang === selected)));
+        document.title = selected === 'en' ? 'Task Progress Board — macOS Download' : 'Task Progress Board — macOS版ダウンロード';
+        try { localStorage.setItem('tpb-site-language', selected); } catch (_) {}
+      }
+      buttons.forEach(button => button.addEventListener('click', () => applyLanguage(button.dataset.lang)));
+      let initial = 'ja';
+      try { initial = localStorage.getItem('tpb-site-language') || (navigator.language.startsWith('ja') ? 'ja' : 'en'); } catch (_) {}
+      applyLanguage(initial);
+    })();
+  </script>
+</body>
+</html>
