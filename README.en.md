@@ -37,7 +37,7 @@ You can also run `.github/workflows/build-mac.yml` manually or push a tag beginn
 
 Build artifacts are written to `dist/`. The app supports Apple Silicon (`arm64`) and Intel (`x64`) Macs.
 
-The current build is unsigned. Before distributing it publicly, configure Apple Developer ID signing and notarization.
+The current macOS build uses a complete ad hoc signature to preserve bundle integrity, but it is not signed and notarized with an Apple Developer ID. If macOS shows an Apple verification warning on first launch, click Done, then choose System Settings > Privacy & Security > Open Anyway and confirm Open. Apple Developer ID signing and notarization are required to remove this warning for public distribution.
 
 Task data is stored in the app's dedicated data area. You can select a JSON backup destination in Settings to save a synchronized copy through the standard macOS file picker. Language, text size, theme, and progress bar color preferences are also available in Settings.
 
