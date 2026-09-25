@@ -1,6 +1,6 @@
 {
   "name": "task-progress-board",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "macOS desktop task progress board",
   "license": "SEE LICENSE IN LICENSE",
   "main": "desktop/main.cjs",
@@ -9,7 +9,8 @@
     "css": "tailwindcss -c tailwind.config.cjs -i styles/input.css -o app.css --minify",
     "start": "pnpm run css && electron .",
     "test": "node tests/reorder.cjs && node tests/gauge-color.cjs && node tests/productivity.cjs && node tests/desktop.cjs",
-    "build:mac": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64 --publish never",
+    "build:mac": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64 --publish never -c.mac.identity=- -c.mac.notarize=false",
+    "build:mac:signed": "pnpm run css && electron-builder --mac dmg zip --arm64 --x64 --publish never",
     "build:dir": "pnpm run css && electron-builder --dir"
   },
   "devDependencies": {
@@ -20,7 +21,6 @@
   "build": {
     "appId": "jp.hideyuki.taskprogressboard",
     "productName": "Task Progress Board",
-    "afterPack": "desktop/after-pack.cjs",
     "asar": true,
     "directories": {
       "output": "dist",
@@ -35,6 +35,9 @@
     "mac": {
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
+      "notarize": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "target": [
         { "target": "dmg", "arch": ["arm64", "x64"] },
         { "target": "zip", "arch": ["arm64", "x64"] }
