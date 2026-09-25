@@ -79,10 +79,10 @@
     .install-visual-icon { flex-direction:column; min-height:328px; gap:12px; }
     .install-visual-icon img { width:144px; height:144px; }
     .install-visual-icon span { font-size:14px; font-weight:600; }
-    .install-visual:last-child { grid-column:1 / -1; }
-    .install-visual:last-child .install-visual-image { padding:24px; }
+    .install-visual-settings { grid-column:1 / -1; }
+    .install-visual-settings .install-visual-image { padding:24px; }
     .install-visual-image a { display:block; max-width:723px; width:100%; }
-    .install-visual:last-child .install-visual-image img { width:100%; max-width:723px; height:auto; }
+    .install-visual-settings .install-visual-image img { width:100%; max-width:723px; height:auto; }
     .install-visual figcaption { min-height:84px; padding:14px 16px 16px; color:var(--muted); font-size:13px; line-height:1.6; }
     .install-visual figcaption strong { display:block; margin-bottom:4px; color:var(--ink); font-size:14px; }
     .privacy-note { margin:0 0 17px; color:#59636f; font-size:12px; line-height:1.6; }
@@ -101,7 +101,7 @@
       .preview { min-height:360px; }
       .features { grid-template-columns:1fr; }
       .install-visuals { grid-template-columns:repeat(2,minmax(0,1fr)); }
-      .install-visual:last-child { grid-column:1 / -1; }
+      .install-visual-settings { grid-column:1 / -1; }
       .section { padding:54px 28px; }
       .section-head { align-items:start; flex-direction:column; }
     }
@@ -118,9 +118,9 @@
       .section { padding:46px 20px; }
       .guide { grid-template-columns:1fr; }
       .install-visuals { grid-template-columns:1fr; }
-      .install-visual:last-child { grid-column:auto; }
+      .install-visual-settings { grid-column:auto; }
       .install-visual-image { padding:16px; }
-      .install-visual:last-child .install-visual-image { padding:10px; }
+      .install-visual-settings .install-visual-image { padding:10px; }
       .install-steps ol { grid-template-columns:1fr; }
       .license { align-items:flex-start; flex-direction:column; }
       footer { padding:22px 20px; flex-direction:column; }
@@ -199,19 +199,23 @@
               <div class="install-visual-image"><img src="assets/install/mac-first-launch-warning.png" width="512" height="630" loading="lazy" alt="macOSの初回起動警告と完了ボタン"></div>
               <figcaption><strong data-ja="2. 警告では「完了」" data-en="2. Click Done on the warning">2. 警告では「完了」</strong><span data-ja="最初の警告では「完了」を押します。この操作後に「このまま開く」が表示されます。" data-en="Click Done on the first warning. This enables the Open Anyway option in System Settings.">最初の警告では「完了」を押します。この操作後に「このまま開く」が表示されます。</span></figcaption>
             </figure>
-            <figure class="install-visual">
-              <div class="install-visual-image"><a href="assets/install/mac-security-original.png" target="_blank" rel="noopener" aria-label="画像を拡大 / Enlarge image"><img src="assets/install/mac-security-original.png" width="723" height="625" loading="lazy" alt="プライバシーとセキュリティの実画面。下端の詳細ボタンまで表示"></a></div>
+            <figure class="install-visual install-visual-settings">
+              <div class="install-visual-image"><a href="assets/install/mac-security-clean.png" target="_blank" rel="noopener" aria-label="画像を拡大 / Enlarge image"><img src="assets/install/mac-security-clean.png" width="723" height="625" loading="lazy" alt="プライバシーとセキュリティの実画面。下端の詳細ボタンまで表示"></a></div>
               <figcaption><strong data-ja="3. 「このまま開く」を選択" data-en="3. Choose Open Anyway">3. 「このまま開く」を選択</strong><span data-ja="システム設定 ＞ プライバシーとセキュリティを一番下までスクロールし、「このまま開く」を押します。" data-en="Open System Settings > Privacy & Security, scroll to the bottom, and click Open Anyway.">システム設定 ＞ プライバシーとセキュリティを一番下までスクロールし、「このまま開く」を押します。</span></figcaption>
             </figure>
+            <figure class="install-visual install-visual-settings">
+              <div class="install-visual-image"><img style="width:auto;max-width:100%;height:auto" src="assets/install/mac-confirm-clean.png" width="260" height="383" loading="lazy" alt="起動の確認画面。このまま開くボタン"></div>
+              <figcaption><strong data-ja="4. 確認画面でも「このまま開く」" data-en="4. Confirm Open Anyway">4. 確認画面でも「このまま開く」</strong><span data-ja="この確認画面が出たら「このまま開く」を押します。以後はApplicationsのアイコンから起動できます。" data-en="If this confirmation appears, click Open Anyway. You can then launch the app from Applications.">この確認画面が出たら「このまま開く」を押します。以後はApplicationsのアイコンから起動できます。</span></figcaption>
+            </figure>
           </div>
-          <p class="privacy-note" data-ja="警告・設定画面は実際のスクリーンショットです。設定画面の撮影時は起動許可済みのため「このまま開く」は非表示です。初回起動がブロックされると「セキュリティ」欄に表示されます。個人情報を含む背景は掲載していません。" data-en="These are actual warning and settings screenshots. Open Anyway is absent in this capture because the app was already allowed. It appears in the Security section after macOS blocks the first launch. Personal backgrounds are excluded.">警告・設定画面は実際のスクリーンショットです。設定画面の撮影時は起動許可済みのため「このまま開く」は非表示です。初回起動がブロックされると「セキュリティ」欄に表示されます。個人情報を含む背景は掲載していません。</p>
+          <p class="privacy-note" data-ja="実際のスクリーンショットを使用しています。ウインドウ外の背景のみを除き、画面内の文字やボタンは加工していません。macOSのバージョンによって表示が異なる場合があります。" data-en="Actual screenshots, with only the background outside each window removed. Labels and buttons are unchanged. Appearance may vary by macOS version.">実際のスクリーンショットを使用しています。ウインドウ外の背景のみを除き、画面内の文字やボタンは加工していません。macOSのバージョンによって表示が異なる場合があります。</p>
           <ol>
             <li><span data-ja="DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。" data-en="Open the DMG and drag Task Progress Board to the Applications folder.">DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。</span></li>
             <li><span data-ja="Applicationsフォルダに移したTask Progress Boardをダブルクリックします。" data-en="Double-click Task Progress Board inside the Applications folder.">Applicationsフォルダに移したTask Progress Boardをダブルクリックします。</span></li>
             <li><span data-ja="Appleの確認警告が表示されたら「完了」を押します。この操作を行うまで「このまま開く」は表示されません。" data-en="When Apple’s verification warning appears, click Done. Open Anyway does not appear until you first attempt to launch the app.">Appleの確認警告が表示されたら「完了」を押します。この操作を行うまで「このまま開く」は表示されません。</span></li>
             <li><span data-ja="アップルメニューから「システム設定」＞「プライバシーとセキュリティ」を開きます。アクセシビリティの設定ではありません。" data-en="Open Apple menu > System Settings > Privacy & Security. This is not the Accessibility permission screen.">アップルメニューから「システム設定」＞「プライバシーとセキュリティ」を開きます。アクセシビリティの設定ではありません。</span></li>
             <li><span data-ja="画面を一番下の「セキュリティ」までスクロールし、Task Progress Boardの「このまま開く」を押します。" data-en="Scroll to the Security section at the bottom and click Open Anyway for Task Progress Board.">画面を一番下の「セキュリティ」までスクロールし、Task Progress Boardの「このまま開く」を押します。</span></li>
-            <li><span data-ja="確認画面でもう一度「開く」を選びます。以後はApplicationsのアイコンから通常どおり起動できます。" data-en="Confirm Open once more. You can then launch the app normally from Applications.">確認画面でもう一度「開く」を選びます。以後はApplicationsのアイコンから通常どおり起動できます。</span></li>
+            <li><span data-ja="確認画面でもう一度「このまま開く」（または「開く」）を選びます。以後はApplicationsのアイコンから通常どおり起動できます。" data-en="Confirm Open Anyway (or Open) once more. You can then launch the app normally from Applications.">確認画面でもう一度「このまま開く」（または「開く」）を選びます。以後はApplicationsのアイコンから通常どおり起動できます。</span></li>
           </ol>
         </div>
         <div class="notice" data-ja="v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていないため、上記の初回起動手順が必要です。" data-en="Version 1.0.2 fixes the Electron signing and runtime-entitlement mismatch. Because it is not yet signed and notarized with an Apple Developer ID, the first-launch steps above are required.">v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていないため、上記の初回起動手順が必要です。</div>
