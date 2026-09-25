@@ -70,6 +70,11 @@
     .guide-card strong { display:block; margin-bottom:8px; font-size:18px; }
     .guide-card p { flex:1; margin:0; color:var(--muted); line-height:1.7; }
     .guide-link { display:inline-block; margin-top:20px; color:#303741; font-size:13px; font-weight:800; }
+    .install-steps { margin-top:22px; padding:26px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.56); box-shadow:inset 0 1px 0 #fff; }
+    .install-steps h3 { margin:0 0 18px; font-size:20px; }
+    .install-steps ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; counter-reset:install-step; }
+    .install-steps li { counter-increment:install-step; display:flex; align-items:flex-start; gap:12px; padding:15px; border:1px solid rgba(105,114,125,.14); border-radius:13px; background:rgba(255,255,255,.48); color:var(--muted); font-size:13px; line-height:1.65; }
+    .install-steps li::before { content:counter(install-step); flex:0 0 25px; height:25px; display:grid; place-items:center; border-radius:8px; background:#3b434d; color:#fff; font-size:12px; font-weight:800; box-shadow:0 5px 12px rgba(42,49,58,.18); }
     .notice { margin-top:18px; padding:18px 20px; border:1px solid rgba(129,105,77,.2); border-radius:15px; background:rgba(255,246,228,.54); color:#655640; font-size:13px; line-height:1.7; }
     .license { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:28px; border:1px solid rgba(255,255,255,.86); border-radius:19px; background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(217,221,226,.5)); box-shadow:inset 0 1px 0 #fff; }
     .license p { max-width:720px; margin:8px 0 0; color:var(--muted); line-height:1.7; }
@@ -96,6 +101,7 @@
       .app-shot,.app-shot:hover { transform:none; }
       .section { padding:46px 20px; }
       .guide { grid-template-columns:1fr; }
+      .install-steps ol { grid-template-columns:1fr; }
       .license { align-items:flex-start; flex-direction:column; }
       footer { padding:22px 20px; flex-direction:column; }
     }
@@ -162,7 +168,18 @@
           <a class="guide-card" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/download/v1.0.2/Task-Progress-Board-1.0.2-mac-x64.dmg"><strong>Intel Mac</strong><p data-ja="「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。" data-en="Choose this version if your Mac shows an Intel Core processor.">「Intel Core i5」「Intel Core i7」などと表示されるMacはこちらです。</p><span class="guide-link" data-ja="ダウンロード ↓" data-en="Download ↓">ダウンロード ↓</span></a>
           <a class="guide-card" href="https://github.com/matcha-gumii/task-progress-board-mac/releases/download/v1.0.2/Task-Progress-Board-1.0.2-windows-x64.exe"><strong>Windows x64</strong><p data-ja="Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。" data-en="Choose this version for a typical 64-bit Intel or AMD PC running Windows 10 or 11.">Windows 10／11を搭載した一般的なIntel・AMD製64bit PCはこちらです。</p><span class="guide-link" data-ja="ダウンロード ↓" data-en="Download ↓">ダウンロード ↓</span></a>
         </div>
-        <div class="notice" data-ja="Mac版は、DMGを開いたあとTask Progress BoardをApplicationsフォルダへドラッグしてから起動してください。DMG内から直接起動すると、macOSが毎回別の場所にあるアプリとして扱い、起動許可が保存されないことがあります。v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていません。初回起動時に警告が表示されたら「完了」を押し、システム設定 ＞ プライバシーとセキュリティへ進み、下にスクロールして「このまま開く」を選択してください。確認画面でもう一度「開く」を選ぶと、次回から通常どおり起動できます。" data-en="On macOS, open the DMG and drag Task Progress Board to the Applications folder before launching it. Launching directly from the DMG can cause macOS to treat it as a different translocated app each time, so the permission may not persist. Version 1.0.2 fixes the Electron signing and runtime-entitlement mismatch in the previous build. It is not yet signed and notarized with an Apple Developer ID. If macOS shows a warning on first launch, click Done, open System Settings > Privacy & Security, scroll down, and click Open Anyway. Confirm Open once more; subsequent launches will work normally.">Mac版は、DMGを開いたあとTask Progress BoardをApplicationsフォルダへドラッグしてから起動してください。DMG内から直接起動すると、macOSが毎回別の場所にあるアプリとして扱い、起動許可が保存されないことがあります。v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていません。初回起動時に警告が表示されたら「完了」を押し、システム設定 ＞ プライバシーとセキュリティへ進み、下にスクロールして「このまま開く」を選択してください。確認画面でもう一度「開く」を選ぶと、次回から通常どおり起動できます。</div>
+        <div class="install-steps">
+          <h3 data-ja="Mac版の初回起動手順" data-en="First launch on macOS">Mac版の初回起動手順</h3>
+          <ol>
+            <li><span data-ja="DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。" data-en="Open the DMG and drag Task Progress Board to the Applications folder.">DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。</span></li>
+            <li><span data-ja="Applicationsフォルダに移したTask Progress Boardをダブルクリックします。" data-en="Double-click Task Progress Board inside the Applications folder.">Applicationsフォルダに移したTask Progress Boardをダブルクリックします。</span></li>
+            <li><span data-ja="Appleの確認警告が表示されたら「完了」を押します。この操作を行うまで「このまま開く」は表示されません。" data-en="When Apple’s verification warning appears, click Done. Open Anyway does not appear until you first attempt to launch the app.">Appleの確認警告が表示されたら「完了」を押します。この操作を行うまで「このまま開く」は表示されません。</span></li>
+            <li><span data-ja="アップルメニューから「システム設定」＞「プライバシーとセキュリティ」を開きます。アクセシビリティの設定ではありません。" data-en="Open Apple menu > System Settings > Privacy & Security. This is not the Accessibility permission screen.">アップルメニューから「システム設定」＞「プライバシーとセキュリティ」を開きます。アクセシビリティの設定ではありません。</span></li>
+            <li><span data-ja="画面を一番下の「セキュリティ」までスクロールし、Task Progress Boardの「このまま開く」を押します。" data-en="Scroll to the Security section at the bottom and click Open Anyway for Task Progress Board.">画面を一番下の「セキュリティ」までスクロールし、Task Progress Boardの「このまま開く」を押します。</span></li>
+            <li><span data-ja="確認画面でもう一度「開く」を選びます。以後はApplicationsのアイコンから通常どおり起動できます。" data-en="Confirm Open once more. You can then launch the app normally from Applications.">確認画面でもう一度「開く」を選びます。以後はApplicationsのアイコンから通常どおり起動できます。</span></li>
+          </ol>
+        </div>
+        <div class="notice" data-ja="v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていないため、上記の初回起動手順が必要です。" data-en="Version 1.0.2 fixes the Electron signing and runtime-entitlement mismatch. Because it is not yet signed and notarized with an Apple Developer ID, the first-launch steps above are required.">v1.0.2ではElectronの署名処理と実行権限の不整合を修正済みです。Apple Developer IDでの署名・公証はまだ行っていないため、上記の初回起動手順が必要です。</div>
         <div class="notice" data-ja="Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。" data-en="The Windows build is also unsigned. If Microsoft Defender SmartScreen shows a warning, verify the publisher and download source before running the installer.">Windows版もコード署名されていません。Microsoft Defender SmartScreenの警告が表示された場合は、発行元とダウンロード元を確認したうえで実行してください。</div>
       </section>
 
