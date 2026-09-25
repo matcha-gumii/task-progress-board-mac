@@ -72,6 +72,15 @@
     .guide-link { display:inline-block; margin-top:20px; color:#303741; font-size:13px; font-weight:800; }
     .install-steps { margin-top:22px; padding:26px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.56); box-shadow:inset 0 1px 0 #fff; }
     .install-steps h3 { margin:0 0 18px; font-size:20px; }
+    .install-visuals { display:grid; grid-template-columns:.72fr .9fr 1.65fr; gap:14px; margin-bottom:20px; }
+    .install-visual { margin:0; overflow:hidden; border:1px solid rgba(105,114,125,.16); border-radius:15px; background:rgba(255,255,255,.7); box-shadow:0 12px 25px rgba(48,57,68,.1),inset 0 1px 0 #fff; }
+    .install-visual-image { height:230px; display:grid; place-items:center; overflow:hidden; padding:16px; background:linear-gradient(145deg,rgba(249,250,252,.96),rgba(219,223,229,.72)); }
+    .install-visual-image img { display:block; width:100%; height:100%; object-fit:contain; }
+    .install-visual:last-child .install-visual-image { padding:0; }
+    .install-visual:last-child .install-visual-image img { object-fit:cover; object-position:center 80%; }
+    .install-visual figcaption { min-height:84px; padding:14px 16px 16px; color:var(--muted); font-size:13px; line-height:1.6; }
+    .install-visual figcaption strong { display:block; margin-bottom:4px; color:var(--ink); font-size:14px; }
+    .privacy-note { margin:0 0 17px; color:#59636f; font-size:12px; line-height:1.6; }
     .install-steps ol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; counter-reset:install-step; }
     .install-steps li { counter-increment:install-step; display:flex; align-items:flex-start; gap:12px; padding:15px; border:1px solid rgba(105,114,125,.14); border-radius:13px; background:rgba(255,255,255,.48); color:var(--muted); font-size:13px; line-height:1.65; }
     .install-steps li::before { content:counter(install-step); flex:0 0 25px; height:25px; display:grid; place-items:center; border-radius:8px; background:#3b434d; color:#fff; font-size:12px; font-weight:800; box-shadow:0 5px 12px rgba(42,49,58,.18); }
@@ -86,6 +95,8 @@
       .hero { grid-template-columns:1fr; padding:56px 28px; }
       .preview { min-height:360px; }
       .features { grid-template-columns:1fr; }
+      .install-visuals { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .install-visual:last-child { grid-column:1 / -1; }
       .section { padding:54px 28px; }
       .section-head { align-items:start; flex-direction:column; }
     }
@@ -101,6 +112,9 @@
       .app-shot,.app-shot:hover { transform:none; }
       .section { padding:46px 20px; }
       .guide { grid-template-columns:1fr; }
+      .install-visuals { grid-template-columns:1fr; }
+      .install-visual:last-child { grid-column:auto; }
+      .install-visual-image { height:260px; }
       .install-steps ol { grid-template-columns:1fr; }
       .license { align-items:flex-start; flex-direction:column; }
       footer { padding:22px 20px; flex-direction:column; }
@@ -170,6 +184,21 @@
         </div>
         <div class="install-steps">
           <h3 data-ja="Mac版の初回起動手順" data-en="First launch on macOS">Mac版の初回起動手順</h3>
+          <div class="install-visuals">
+            <figure class="install-visual">
+              <div class="install-visual-image"><img src="assets/install/mac-applications.png" width="150" height="150" loading="lazy" alt="Applicationsフォルダ内のTask Progress Boardアイコン"></div>
+              <figcaption><strong data-ja="1. Applicationsへ移動" data-en="1. Move to Applications">1. Applicationsへ移動</strong><span data-ja="DMGから移動したあと、Applicationsフォルダ内のこのアイコンをダブルクリックします。" data-en="After copying the app from the DMG, double-click this icon in Applications.">DMGから移動したあと、Applicationsフォルダ内のこのアイコンをダブルクリックします。</span></figcaption>
+            </figure>
+            <figure class="install-visual">
+              <div class="install-visual-image"><img src="assets/install/mac-first-launch-warning.png" width="512" height="630" loading="lazy" alt="macOSの初回起動警告と完了ボタン"></div>
+              <figcaption><strong data-ja="2. 警告では「完了」" data-en="2. Click Done on the warning">2. 警告では「完了」</strong><span data-ja="最初の警告では「完了」を押します。この操作後に「このまま開く」が表示されます。" data-en="Click Done on the first warning. This enables the Open Anyway option in System Settings.">最初の警告では「完了」を押します。この操作後に「このまま開く」が表示されます。</span></figcaption>
+            </figure>
+            <figure class="install-visual">
+              <div class="install-visual-image"><img src="assets/install/mac-open-anyway.png" width="1000" height="864" loading="lazy" alt="プライバシーとセキュリティのこのまま開くボタンの表示例"></div>
+              <figcaption><strong data-ja="3. 「このまま開く」を選択" data-en="3. Choose Open Anyway">3. 「このまま開く」を選択</strong><span data-ja="システム設定 ＞ プライバシーとセキュリティを一番下までスクロールし、「このまま開く」を押します。" data-en="Open System Settings > Privacy & Security, scroll to the bottom, and click Open Anyway.">システム設定 ＞ プライバシーとセキュリティを一番下までスクロールし、「このまま開く」を押します。</span></figcaption>
+            </figure>
+          </div>
+          <p class="privacy-note" data-ja="掲載画像は必要な部分だけを切り抜き、背景に個人情報が残らないよう処理しています。macOSのバージョンによって表示位置や文言が少し異なる場合があります。" data-en="The screenshots are cropped and privacy-safe. Button placement and wording may vary slightly by macOS version.">掲載画像は必要な部分だけを切り抜き、背景に個人情報が残らないよう処理しています。macOSのバージョンによって表示位置や文言が少し異なる場合があります。</p>
           <ol>
             <li><span data-ja="DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。" data-en="Open the DMG and drag Task Progress Board to the Applications folder.">DMGを開き、Task Progress BoardをApplicationsフォルダへドラッグします。</span></li>
             <li><span data-ja="Applicationsフォルダに移したTask Progress Boardをダブルクリックします。" data-en="Double-click Task Progress Board inside the Applications folder.">Applicationsフォルダに移したTask Progress Boardをダブルクリックします。</span></li>
